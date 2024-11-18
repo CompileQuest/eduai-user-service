@@ -1,5 +1,5 @@
 // todo create wishlist collection and reference it with the user
-
+const mongoose = require("mongoose")
 // Schema for embedded cart items
 const cartItemSchema = new mongoose.Schema({
     item_id: {

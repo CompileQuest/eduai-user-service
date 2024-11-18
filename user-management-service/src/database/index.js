@@ -6,5 +6,4 @@ module.exports = {
     PrivacyRepository: require('./repository/privacy-repository'),
     NotificationSettingsRepository: require('./repository/notificationSettings-repository'),
     DeletedUsersRepository: require('./repository/deletedUsers-repository'),
-
 }

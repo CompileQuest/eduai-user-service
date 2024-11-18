@@ -84,6 +84,11 @@ const notificationSettingsSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  user_id: {
+    type: mongoose.Schema.Types.UUID, // Foreign key to the user table
+    required: true,
+    ref: 'User' // Assuming you have a 'User' model to reference the user
+  },
   enabled: {
     type: Boolean,
     required: true,
