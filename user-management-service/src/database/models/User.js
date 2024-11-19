@@ -75,6 +75,7 @@ const linkedAccountsSchema = new mongoose.Schema({
 // todo add address field 1 and 2 
 // todo add the country 
 // todo first name and last name 
+//here we go
 const userSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.UUID, // UUID for user ID
