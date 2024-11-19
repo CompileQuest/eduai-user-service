@@ -69,6 +69,12 @@ const linkedAccountsSchema = new mongoose.Schema({
     }});
 
 
+
+// todo convert notifcation settings to embedded 
+// todo add the wishlist 
+// todo add address field 1 and 2 
+// todo add the country 
+// todo first name and last name 
 const userSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.UUID, // UUID for user ID
@@ -91,7 +97,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         match: /.+\@.+\..+/ // Basic email validation
     },
-    role_id: {
+    role: {
         type: String,
         required: true
     },
@@ -102,7 +108,7 @@ const userSchema = new mongoose.Schema({
     birthday: {
         type: Date
     },
-    billing_info_id: {
+    billing_info_id: { // todo  conver this to embedd model 
         type: mongoose.Schema.Types.UUID,
         required: true
     },
@@ -129,15 +135,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         match: /^https?:\/\/.+$/ // Basic URL validation
     },
-    created_at: {
+    created_at: { 
         type: Date,
         default: Date.now
     },
-    updated_at: {
+    updated_at: { // todo: make sure that you update the field everytime you update the collection 
         type: Date,
         default: Date.now
     },
-    last_login: {
+    last_login: { 
         type: Date
     },
     status: {

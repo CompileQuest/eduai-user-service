@@ -2,7 +2,7 @@ const UserService = require('../../services/user-service')
 const UserAuth = require("../middlewares/auth");
 
 
-// Todo : creating the router for the handler from the main router 
+// Todo : 
 module.exports = (app) => {
     const service = new UserService();
 

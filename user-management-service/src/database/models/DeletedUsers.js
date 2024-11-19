@@ -1,6 +1,8 @@
 
 const mongoose = require('mongoose');
 
+
+// todo make last thing 
 // Define the schema for account deletion events
 const accountDeletionSchema = new mongoose.Schema({
   deleted_account_id: {

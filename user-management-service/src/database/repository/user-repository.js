@@ -8,6 +8,8 @@ const {
 
 //Dealing with data base operations
 class CustomerRepository {
+
+    
     async CreateCustomer({ email, password, phone, salt }) {
         try {
             const customer = new CustomerModel({
