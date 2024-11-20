@@ -2,6 +2,7 @@ const { UserRepository } = require("../database");
 const { FormateData, GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } = require('../utils');
 const { APIError, BadRequestError } = require('../utils/app-errors')
 
+const bcrypt = require('bcrypt');
 
 
 // All Business logic will be here
@@ -12,27 +13,26 @@ class UserService {
     }
 
 //////////////////////////////////////////
-async AddUser(userData) {
+async AddUser(email, password) {
     try {
-        const { email, password } = userData;
+        // Generate salt and hash the password with bcrypt
+        const salt = await bcrypt.genSalt(10);  // Generate salt with bcrypt
+        const hashedPassword = await bcrypt.hash(password, salt);  // Hash the password with the salt
 
-        // Generate a salt
-        const salt = await GenerateSalt();
+        console.log('Hashed Password:', hashedPassword);  // Log the hashed password
+        console.log('Email:', email);
 
-        // Generate the hashed password using the salt
-        const hashedPassword = await GeneratePassword(password, salt);
-
-        // Call the repository method to create a new user with the hashed password and salt
+        // Call the repository method to create a new user
         const newUser = await this.repository.CreateUser({
             email,
-            password: hashedPassword,  // Pass the hashed password
-            salt,                      // Pass the salt
+            password_hash: hashedPassword,  // Store the hashed password only
         });
 
-        // Return the formatted data
-        return FormateData(newUser);
+        console.log('New User:', newUser);  // Log the new user to check
+
+        return FormateData(newUser);  // Return formatted data
     } catch (err) {
-        // If an error occurs, throw a custom APIError with relevant message
+        // Handle any errors that occur during user creation
         throw new APIError(
             'User Creation Error',
             undefined, 
@@ -41,6 +41,7 @@ async AddUser(userData) {
         );
     }
 }
+
 
 
 

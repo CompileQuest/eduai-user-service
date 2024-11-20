@@ -100,11 +100,14 @@ const linkedAccountsSchema = new mongoose.Schema({
 // todo first name and last name done
 //here we go not done
 const userSchema = new mongoose.Schema({
-    user_id: {
+
+  user_id: { type: String, required: false },
+
+   /* user_id: {
         type: mongoose.Schema.Types.UUID, // UUID for user ID
         required: true,
         unique: true
-    },
+    },*/
    
     password_hash: {
         type: String,
@@ -118,7 +121,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        required: true
+        required: false
     },
     phone: {
         type: String,

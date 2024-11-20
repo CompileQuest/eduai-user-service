@@ -10,12 +10,9 @@ module.exports = (app) => {
     app.post("/signup", async (req, res, next) => {
         try {
             const { email, password } = req.body;  // Only require email and password
-    
+    console.log(email+" "+password);
             // Call service method to create user
-            const { data } = await service.AddUser({
-                email,
-                password,
-            });
+            const { data } = await service.AddUser(email, password);
     
             // Send the created user data as a response
             return res.status(201).json(data);  // 201 is the standard status code for resource creation

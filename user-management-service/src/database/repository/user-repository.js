@@ -1,4 +1,6 @@
 const { CustomerModel, AddressModel } = require("../models");
+const UserModel = require('../models/User'); // Adjust the path to the location of your User model file
+
 const {
     APIError,
     BadRequestError,
@@ -11,14 +13,16 @@ class CustomerRepository {
 
 
 ///////////////////////////////////////////////////
-
-
-async CreateUser({ email, salt, password }) {
+async CreateUser({ email, password_hash }) {
     try {
+        // Ensure that email and password_hash are provided
+        if (!email || !password_hash) {
+            throw new Error('Missing required fields: email or password_hash');
+        }
+console.log('Email:', email);
         const user = new UserModel({
             email,
-            password,  // Include the hashed password here
-            salt,
+            password_hash,  // Store only the hashed password
             created_at: new Date(),
             updated_at: new Date(),
         });
@@ -27,23 +31,26 @@ async CreateUser({ email, salt, password }) {
         const userResult = await user.save();
         return userResult;
     } catch (err) {
+        // Log and handle errors
+        console.error(err);
         throw new APIError(
-            "API Error",
+            'API Error',
             STATUS_CODES.INTERNAL_ERROR,
-            "Unable to Create User"
+            'Unable to Create User'
         );
     }
 }
 
 
 
+
     ///////////////////////////////////////////
-    async CreateCustomer({ email, password, phone, salt }) {
+    async CreateCustomer({ email, password, phone }) {
         try {
             const customer = new CustomerModel({
                 email,
                 password,
-                salt,
+                
                 phone,
                 address: [],
             });
