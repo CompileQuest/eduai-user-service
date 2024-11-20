@@ -105,12 +105,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true
-    },
+   
     password_hash: {
         type: String,
         required: true
@@ -134,7 +129,7 @@ const userSchema = new mongoose.Schema({
     },
     billing_info: {
       type: billingInfoSchema, // Embedded billing info schema
-      required: true
+      required: false
     },
     bio: {
         type: String,
@@ -149,22 +144,22 @@ const userSchema = new mongoose.Schema({
     },
     first_name: {
         type: String,
-        required: true
+        required: false
     },
     last_name: {
         type: String,
-        required: true
+        required: false
     },
     address_line_1: {
       type: String,
-      required: true
+      required: false
     },
     address_line_2: {
       type: String
     },
     country: {
       type: String,
-      required: true
+      required: false
     },
     profile_picture_url: {
         type: String,

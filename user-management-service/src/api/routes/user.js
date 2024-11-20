@@ -7,16 +7,23 @@ module.exports = (app) => {
     const service = new UserService();
 
 
-
     app.post("/signup", async (req, res, next) => {
         try {
-            const { email, password, phone } = req.body;
-            const { data } = await service.SignUp({ email, password, phone });
-            return res.json(data);
+            const { email, password } = req.body;  // Only require email and password
+    
+            // Call service method to create user
+            const { data } = await service.AddUser({
+                email,
+                password,
+            });
+    
+            // Send the created user data as a response
+            return res.status(201).json(data);  // 201 is the standard status code for resource creation
         } catch (err) {
             next(err);
         }
     });
+    
 
     app.post("/login", async (req, res, next) => {
         try {
@@ -29,28 +36,8 @@ module.exports = (app) => {
             next(err);
         }
     });
-///////////////////////////////////////////
 
 
-router.post("/", UserService.createUser);
-
-
-router.get("/:id", UserService.getUserById);
-
-router.put("/:id", UserService.updateUser);
-
-router.delete("/:id", UserService.deleteUser)
-
-
-
-
-
-
-
-
-
-
-    //////////////////////////
     app.post("/address", UserAuth, async (req, res, next) => {
         try {
             const { _id } = req.user;

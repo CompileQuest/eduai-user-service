@@ -3,55 +3,6 @@ const { FormateData, GeneratePassword, GenerateSalt, GenerateSignature, Validate
 const { APIError, BadRequestError } = require('../utils/app-errors')
 
 
-  ///////////////////////////////////////////
-
-  const getUserById = async (req, res) => {
-    try {
-      const user = await User.findById(req.params.id).populate("wishlist_id");
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.status(200).json(user);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
-  
-  const updateUser = async (req, res) => {
-    try {
-      const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      });
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.status(200).json(user);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
-  
-  const deleteUser = async (req, res) => {
-    try {
-      const user = await User.findByIdAndDelete(req.params.id);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.status(200).json({ message: "User deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
-  
-  module.exports = { createUser, getUserById, updateUser, deleteUser };
-
-
-
-//////////////////////////////////////
-
-
-
 
 // All Business logic will be here
 class UserService { 
@@ -60,9 +11,40 @@ class UserService {
         this.repository = new UserRepository();
     }
 
+//////////////////////////////////////////
+async AddUser(userData) {
+    try {
+        const { email, password } = userData;
+
+        // Generate a salt
+        const salt = await GenerateSalt();
+
+        // Generate the hashed password using the salt
+        const hashedPassword = await GeneratePassword(password, salt);
+
+        // Call the repository method to create a new user with the hashed password and salt
+        const newUser = await this.repository.CreateUser({
+            email,
+            password: hashedPassword,  // Pass the hashed password
+            salt,                      // Pass the salt
+        });
+
+        // Return the formatted data
+        return FormateData(newUser);
+    } catch (err) {
+        // If an error occurs, throw a custom APIError with relevant message
+        throw new APIError(
+            'User Creation Error',
+            undefined, 
+            err.message,
+            true 
+        );
+    }
+}
 
 
-  
+
+/////////////////////////////////////////////
     async GetProfile(id){
 
         try {

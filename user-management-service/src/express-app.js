@@ -17,7 +17,7 @@ module.exports = async (app) => {
     // })
     // Listen to Events
     // appEvent(app);
-    app.use("/api/users", UserRouter);
+
   
 
     //api
