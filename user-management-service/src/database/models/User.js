@@ -1,11 +1,14 @@
+const uuid = require('uuid'); // lel unique id ya 5waty
+
 // todo create wishlist collection and reference it with the user
+
 const mongoose = require("mongoose")
 // Schema for embedded cart items
 const cartItemSchema = new mongoose.Schema({
     item_id: {
       type: mongoose.Schema.Types.UUID, // UUID for item ID
       required: true,
-      unique: true
+      unique: false
     },
     product_name: {
       type: String,
@@ -101,13 +104,22 @@ const linkedAccountsSchema = new mongoose.Schema({
 //here we go not done
 const userSchema = new mongoose.Schema({
 
-  user_id: { type: String, required: false },
+  user_id: {
+    type: String, // UUIDs are strings
+    default: uuid.v4, // Automatically generate a UUID
+    unique: true,
+    required: true,
+  },
 
-   /* user_id: {
-        type: mongoose.Schema.Types.UUID, // UUID for user ID
-        required: true,
-        unique: true
-    },*/
+  username: {
+    type: String,
+    unique: false,
+    required: false, // Optional unless you want it mandatory
+    maxlength: 50, // Limit username length
+    trim: true, // Remove extra spaces
+    match: /^[a-zA-Z0-9_.-]*$/, // Allow letters, numbers, underscore, dot, and hyphen
+  },
+  
    
     password_hash: {
         type: String,

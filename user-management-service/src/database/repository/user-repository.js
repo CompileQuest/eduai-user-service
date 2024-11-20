@@ -11,37 +11,50 @@ const {
 //Dealing with data base operations
 class CustomerRepository {
 
+    constructor() {
+        this.userModel = UserModel;
+      }
+    
 
 ///////////////////////////////////////////////////
 async CreateUser({ email, password_hash }) {
     try {
-        // Ensure that email and password_hash are provided
-        if (!email || !password_hash) {
-            throw new Error('Missing required fields: email or password_hash');
-        }
-console.log('Email:', email);
-        const user = new UserModel({
-            email,
-            password_hash,  // Store only the hashed password
-            created_at: new Date(),
-            updated_at: new Date(),
-        });
-
-        // Save the new user to the database
-        const userResult = await user.save();
-        return userResult;
+      if (!email || !password_hash) {
+        throw new Error('Missing required fields: email or password_hash');
+      }
+  
+      const user = new UserModel({
+        email,
+        password_hash,
+      });
+  
+      const userResult = await user.save();
+      return userResult;
     } catch (err) {
-        // Log and handle errors
-        console.error(err);
-        throw new APIError(
-            'API Error',
-            STATUS_CODES.INTERNAL_ERROR,
-            'Unable to Create User'
-        );
+      console.error(err);
+      throw new APIError(
+        'API Error',
+        STATUS_CODES.INTERNAL_ERROR,
+        'Unable to Create User'
+      );
     }
-}
-
-
+  }
+  
+  async GetAllUsers() {
+    try {
+        console.log("GetAllUsers called");
+      const users = await this.userModel.find(); 
+      console.log(users);  // Retrieve all users
+      return users;
+    } catch (err) {
+      console.error(err);
+      throw new APIError(
+        'Database Error',
+        STATUS_CODES.INTERNAL_ERROR,
+        'Unable to Retrieve Users'
+      );
+    }
+  }
 
 
     ///////////////////////////////////////////

@@ -15,33 +15,54 @@ class UserService {
 //////////////////////////////////////////
 async AddUser(email, password) {
     try {
-        // Generate salt and hash the password with bcrypt
-        const salt = await bcrypt.genSalt(10);  // Generate salt with bcrypt
-        const hashedPassword = await bcrypt.hash(password, salt);  // Hash the password with the salt
-
-        console.log('Hashed Password:', hashedPassword);  // Log the hashed password
-        console.log('Email:', email);
-
-        // Call the repository method to create a new user
-        const newUser = await this.repository.CreateUser({
-            email,
-            password_hash: hashedPassword,  // Store the hashed password only
-        });
-
-        console.log('New User:', newUser);  // Log the new user to check
-
-        return FormateData(newUser);  // Return formatted data
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+  
+      const newUser = await this.repository.CreateUser({
+        email,
+        password_hash: hashedPassword,
+      });
+  
+      return FormateData(newUser);
     } catch (err) {
-        // Handle any errors that occur during user creation
-        throw new APIError(
-            'User Creation Error',
-            undefined, 
-            err.message,
-            true 
-        );
+      throw new APIError(
+        'User Creation Error',
+        undefined,
+        err.message,
+        true
+      );
     }
-}
+  }
+  
+////////////all users ////////////////////////
 
+
+async GetAllUsers() {
+    try {
+      const users = await this.repository.GetAllUsers();
+      
+      // Format the data if necessary
+      const formattedUsers = users.map(user => ({
+        id: user.user_id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+      }));
+
+      return formattedUsers;
+    } catch (err) {
+      console.error(err);
+      throw new APIError(
+        'User Retrieval Error',
+        undefined,
+        err.message,
+        true
+      );
+    }
+  }
 
 
 
