@@ -68,14 +68,37 @@ const linkedAccountsSchema = new mongoose.Schema({
       recommendations_enabled: { type: Boolean, default: false }
     }});
 
+    const notificationSettingsSchema = new mongoose.Schema({
+      enabled: { type: Boolean, required: true, default: true },
+      security_alerts: { type: Boolean, default: true },
+      news: { type: Boolean, default: true },
+      courses: { type: Boolean, default: true },
+      featured_content: { type: Boolean, default: true },
+      product_updates: { type: Boolean, default: true },
+      events_and_offers: { type: Boolean, default: true },
+      unsubscribe_all: { type: Boolean, default: false }
+    }, { _id: false });
 
+    const billingInfoSchema = new mongoose.Schema({
+      address_line_1: { type: String, required: true },
+      address_line_2: { type: String },
+      city: { type: String, required: true },
+      state: { type: String },
+      postal_code: { type: String, required: true },
+      country: { type: String, required: true },
+      payment_method: {
+        card_number: { type: String, required: true, match: /^\d{16}$/ }, // Simple card number validation
+        expiry_date: { type: String, required: true, match: /^(0[1-9]|1[0-2])\/\d{2}$/ }, // MM/YY format
+        cardholder_name: { type: String, required: true }
+      }
+    }, { _id: false });
 
-// todo convert notifcation settings to embedded 
-// todo add the wishlist 
-// todo add address field 1 and 2 
-// todo add the country 
-// todo first name and last name 
-//here we go
+// todo convert notifcation settings to embedded done
+// todo add the wishlist done
+// todo add address field 1 and 2  done
+// todo add the country done
+// todo first name and last name done
+//here we go not done
 const userSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.UUID, // UUID for user ID
@@ -109,9 +132,9 @@ const userSchema = new mongoose.Schema({
     birthday: {
         type: Date
     },
-    billing_info_id: { // todo  conver this to embedd model 
-        type: mongoose.Schema.Types.UUID,
-        required: true
+    billing_info: {
+      type: billingInfoSchema, // Embedded billing info schema
+      required: true
     },
     bio: {
         type: String,
@@ -131,6 +154,17 @@ const userSchema = new mongoose.Schema({
     last_name: {
         type: String,
         required: true
+    },
+    address_line_1: {
+      type: String,
+      required: true
+    },
+    address_line_2: {
+      type: String
+    },
+    country: {
+      type: String,
+      required: true
     },
     profile_picture_url: {
         type: String,
@@ -152,14 +186,20 @@ const userSchema = new mongoose.Schema({
         enum: ['active', 'inactive', 'suspended'],
         default: 'active'
     },
-    notification_settings_id: {
-        type: mongoose.Schema.Types.UUID // linked with another collection using its id 
+    notification_settings: {
+      type: notificationSettingsSchema,
+      default: {}
     },
     privacy_setting: {
         type: mongoose.Schema.Types.UUID
     },
+    wishlist_id: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the wishlist collection//////////////////////////
+      ref: 'CourseWishlist'
+    },
     linked_accounts: {
-        type: mongoose.Schema.Types.UUID
+      type: linkedAccountsSchema,
+      default: {}
     },
     purchased_courses: [
         {
@@ -174,9 +214,9 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.UUID
     },
     social_profiles: {
-        type: socialProfilesSchema,
-        default: {}
-      },
+      type: socialProfilesSchema,
+      default: {}
+    },
       linked_accounts: {
         type: linkedAccountsSchema, // Embed the linked accounts schema
         default: {}

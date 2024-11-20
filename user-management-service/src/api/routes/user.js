@@ -29,8 +29,28 @@ module.exports = (app) => {
             next(err);
         }
     });
+///////////////////////////////////////////
 
 
+router.post("/", UserService.createUser);
+
+
+router.get("/:id", UserService.getUserById);
+
+router.put("/:id", UserService.updateUser);
+
+router.delete("/:id", UserService.deleteUser)
+
+
+
+
+
+
+
+
+
+
+    //////////////////////////
     app.post("/address", UserAuth, async (req, res, next) => {
         try {
             const { _id } = req.user;

@@ -3,6 +3,55 @@ const { FormateData, GeneratePassword, GenerateSalt, GenerateSignature, Validate
 const { APIError, BadRequestError } = require('../utils/app-errors')
 
 
+  ///////////////////////////////////////////
+
+  const getUserById = async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id).populate("wishlist_id");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
+  const updateUser = async (req, res) => {
+    try {
+      const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
+  const deleteUser = async (req, res) => {
+    try {
+      const user = await User.findByIdAndDelete(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
+  module.exports = { createUser, getUserById, updateUser, deleteUser };
+
+
+
+//////////////////////////////////////
+
+
+
 
 // All Business logic will be here
 class UserService { 
@@ -12,6 +61,8 @@ class UserService {
     }
 
 
+
+  
     async GetProfile(id){
 
         try {
