@@ -64,6 +64,30 @@ async GetAllUsers() {
     }
   }
 
+  ////delete user/////
+
+
+  async DeleteUserById(userId) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required to delete a user');
+        }
+
+        // Call the repository method
+        const deletedUser = await this.repository.DeleteUserById(userId);
+
+        return FormateData(deletedUser); // Return formatted data
+    } catch (err) {
+        console.error('Service Error Deleting User:', err);
+        throw new APIError(
+            'User Deletion Error',
+            undefined,
+            err.message,
+            true
+        );
+    }
+}
+
 
 
 /////////////////////////////////////////////

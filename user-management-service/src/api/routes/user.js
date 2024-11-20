@@ -27,8 +27,30 @@ module.exports = (app) => {
           next(err); 
         }
       });
+
+      ////delete user/////
+      app.delete('/users/:id', async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const cleanedId = id.trim();  // Clean the ID to avoid issues like newlines
+    
+            // Call the service to delete the user by their UUID
+            const deletedUser = await service.DeleteUserById(cleanedId);
+    
+            return res.status(200).json({
+                message: 'User deleted successfully',
+                data: deletedUser,
+            });
+        } catch (err) {
+            next(err); // Handle any errors
+        }
+    });
+    
     
 
+
+    
+/////////////////////////////////////////////////////////////////////
     app.post("/login", async (req, res, next) => {
         try {
             const { email, password } = req.body;

@@ -56,6 +56,31 @@ async CreateUser({ email, password_hash }) {
     }
   }
 
+////delete user/////
+
+async DeleteUserById(userId) {
+    try {
+        // Ensure userId is trimmed of any extra characters
+        const trimmedUserId = userId.trim();
+console.log(trimmedUserId);
+        // Find and delete the user by their UUID
+        const user = await UserModel.findOneAndDelete({ user_id: trimmedUserId });
+console.log(user);
+        if (!user) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+
+        return user; // Return the deleted user data
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error deleting user');
+    }
+}
+
+
+
+
+
 
     ///////////////////////////////////////////
     async CreateCustomer({ email, password, phone }) {
