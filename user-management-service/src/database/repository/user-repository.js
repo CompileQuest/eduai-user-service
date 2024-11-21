@@ -44,7 +44,7 @@ async CreateUser({ email, password_hash }) {
     try {
         console.log("GetAllUsers called");
       const users = await this.userModel.find(); 
-      console.log(users);  // Retrieve all users
+ //     console.log(users);  // Retrieve all users
       return users;
     } catch (err) {
       console.error(err);
@@ -55,6 +55,28 @@ async CreateUser({ email, password_hash }) {
       );
     }
   }
+//////////get user by id/////
+
+
+async GetUserById(userId) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        const user = await UserModel.findOne({ user_id: userId.trim() }).lean(); // .lean() improves read performance by returning plain JS objects a7a awel mara a3raf el kalam da
+
+        if (!user) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+
+        return user; 
+    } catch (err) {
+        console.error('Error retrieving user:', err);
+        throw new Error('Error retrieving user');
+    }
+}
+
 
 ////delete user/////
 
@@ -62,10 +84,10 @@ async DeleteUserById(userId) {
     try {
         // Ensure userId is trimmed of any extra characters
         const trimmedUserId = userId.trim();
-console.log(trimmedUserId);
+//console.log(trimmedUserId);
         // Find and delete the user by their UUID
         const user = await UserModel.findOneAndDelete({ user_id: trimmedUserId });
-console.log(user);
+//console.log(user);
         if (!user) {
             throw new Error(`User with ID ${userId} not found`);
         }
@@ -77,7 +99,33 @@ console.log(user);
     }
 }
 
+////////update user//////
 
+
+async UpdateUserById(userId, updates) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        updates.updated_at = new Date();// here any touch update automatically updated_at
+
+        const updatedUser = await UserModel.findOneAndUpdate(
+            { user_id: userId.trim() }, // Match by user_id
+            { $set: updates },          // Apply updates
+            { new: true, runValidators: true } // Return the updated document and validate inputs
+        );
+//console.log(updatedUser);
+        if (!updatedUser) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+
+        return updatedUser;
+    } catch (err) {
+        console.error('Error updating user:', err);
+        throw new Error('Error updating user');
+    }
+}
 
 
 

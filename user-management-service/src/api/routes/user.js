@@ -27,6 +27,23 @@ module.exports = (app) => {
           next(err); 
         }
       });
+///////////get user by id////////
+
+app.get('/users/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params; 
+
+        const user = await service.GetUser(id.trim());
+
+        return res.status(200).json({
+            message: 'User retrieved successfully',
+            data: user,
+        });
+    } catch (err) {
+        next(err); 
+    }
+});
+
 
       ////delete user/////
       app.delete('/users/:id', async (req, res, next) => {
@@ -47,6 +64,30 @@ module.exports = (app) => {
     });
     
     
+///////update user/////
+
+
+app.put('/users/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params; 
+        const updates = req.body; 
+
+        if (!updates || Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: 'No updates provided' });
+        }
+
+        const updatedUser = await service.UpdateUser(id, updates);
+
+        return res.status(200).json({
+            message: 'User updated successfully',
+            data: updatedUser,
+        });
+    } catch (err) {
+        next(err); 
+    }
+});
+
+
 
 
     

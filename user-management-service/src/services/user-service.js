@@ -63,6 +63,28 @@ async GetAllUsers() {
       );
     }
   }
+///////////get user by id////////////////////
+
+async GetUser(userId) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required to retrieve user');
+        }
+
+        const user = await this.repository.GetUserById(userId);
+
+        return FormateData(user); 
+    } catch (err) {
+        console.error('Service Error Fetching User:', err);
+        throw new APIError(
+            'User Retrieval Error',
+            undefined,
+            err.message,
+            true
+        );
+    }
+}
+
 
   ////delete user/////
 
@@ -88,6 +110,32 @@ async GetAllUsers() {
     }
 }
 
+/////////////update user //////////////////////////
+
+
+async UpdateUser(userId, updates) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required to update a user');
+        }
+
+        if (!updates || Object.keys(updates).length === 0) {
+            throw new Error('Update data is required');
+        }
+//console.log(updates);
+        const updatedUser = await this.repository.UpdateUserById(userId, updates);
+//console.log(updatedUser);
+        return FormateData(updatedUser); // Return formatted data
+    } catch (err) {
+        console.error('Service Error Updating User:', err);
+        throw new APIError(
+            'User Update Error',
+            undefined,
+            err.message,
+            true
+        );
+    }
+}
 
 
 /////////////////////////////////////////////
