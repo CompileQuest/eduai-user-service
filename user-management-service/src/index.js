@@ -14,7 +14,7 @@ const StartServer = async() => {
     await DatabaseConnection();
     
     await expressApp(app);
-
+    
     app.listen(PORT, () => {
         console.log(`listening to port ${PORT}`);
     })
