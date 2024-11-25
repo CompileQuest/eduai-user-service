@@ -126,11 +126,76 @@ async UpdateUserById(userId, updates) {
         throw new Error('Error updating user');
     }
 }
+////////////////////notification/////////////////////
+async GetNotificationSettings(userId) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required to retrieve notification settings');
+        }
+
+        const user = await UserModel.findOne({ user_id: userId.trim() }).select('notification_settings').lean();
+
+        if (!user) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+
+        return user.notification_settings;
+    } catch (err) {
+        console.error('Error retrieving notification settings:', err);
+        throw new Error('Error retrieving notification settings');
+    }
+}
+
+async UpdateNotificationSettings(userId, notificationSettings) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required to update notification settings');
+        }
+
+        const updatedUser = await UserModel.findOneAndUpdate(
+            { user_id: userId.trim() },
+            { notification_settings: notificationSettings },
+            { new: true, runValidators: true } // Return updated user and validate input
+        ).select('notification_settings').lean();
+
+        if (!updatedUser) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+
+        return updatedUser.notification_settings;
+    } catch (err) {
+        console.error('Error updating notification settings:', err);
+        throw new Error('Error updating notification settings');
+    }
+}
+//////////progile pic/////
+async UpdateProfileImage(userId, profileImageUrl) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required to update profile image');
+        }
+
+        const updatedUser = await UserModel.findOneAndUpdate(
+            { user_id: userId.trim() },
+            { profile_picture_url: profileImageUrl },
+            { new: true, runValidators: true } // Validate the URL and return the updated document
+        ).select('profile_picture_url').lean();
+
+        if (!updatedUser) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+
+        return updatedUser.profile_picture_url;
+    } catch (err) {
+        console.error('Error updating profile image:', err);
+        throw new Error('Error updating profile image');
+    }
+}
 
 
 
 
-    ///////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
     async CreateCustomer({ email, password, phone }) {
         try {
             const customer = new CustomerModel({

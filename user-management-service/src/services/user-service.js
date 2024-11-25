@@ -136,9 +136,62 @@ async UpdateUser(userId, updates) {
         );
     }
 }
+//////////notificaiton settings////////////////////
+
+async GetNotificationSettings(userId) {
+    try {
+        const notificationSettings = await this.repository.GetNotificationSettings(userId);
+
+        return FormateData(notificationSettings); // Format the response if needed
+    } catch (err) {
+        console.error('Service Error Fetching Notification Settings:', err);
+        throw new APIError(
+            'Notification Retrieval Error',
+            undefined,
+            err.message,
+            true
+        );
+    }
+}
+
+async UpdateNotificationSettings(userId, notificationSettings) {
+    try {
+        const updatedSettings = await this.repository.UpdateNotificationSettings(userId, notificationSettings);
+
+        return FormateData(updatedSettings); // Format the response if needed
+    } catch (err) {
+        console.error('Service Error Updating Notification Settings:', err);
+        throw new APIError(
+            'Notification Update Error',
+            undefined,
+            err.message,
+            true
+        );
+    }
+}
+////////prpfile pic////////////////////////
+async UpdateProfileImage(userId, profileImageUrl) {
+    try {
+        if (!profileImageUrl || !/^https?:\/\/.+$/.test(profileImageUrl)) {
+            throw new Error('Invalid profile image URL provided');
+        }
+
+        const updatedImageUrl = await this.repository.UpdateProfileImage(userId, profileImageUrl);
+
+        return FormateData({ profile_picture_url: updatedImageUrl });
+    } catch (err) {
+        console.error('Service Error Updating Profile Image:', err);
+        throw new APIError(
+            'Profile Image Update Error',
+            undefined,
+            err.message,
+            true
+        );
+    }
+}
 
 
-/////////////////////////////////////////////
+/////////////////////////////////////////////************////////////////////////
     async GetProfile(id){
 
         try {
