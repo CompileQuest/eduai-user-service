@@ -1,1 +1,2 @@
 # eduai-user-service
+.
