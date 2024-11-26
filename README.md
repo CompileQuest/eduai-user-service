@@ -1,5 +1,5 @@
 # eduai-user-service
-.
+
 ## **General Overview**
 
 ### 1. **Service Purposes**
