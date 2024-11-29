@@ -5,7 +5,8 @@ const uuid = require('uuid'); // lel unique id ya 5waty
 const mongoose = require("mongoose")
 // Schema for embedded cart items
 const cartItemSchema = new mongoose.Schema({
-    item_id: {
+    
+  item_id: {
       type: mongoose.Schema.Types.UUID, // UUID for item ID
       required: true,
       unique: false
@@ -18,7 +19,7 @@ const cartItemSchema = new mongoose.Schema({
       type: Number,
       required: true,
       min: 1
-    },
+    }, 
     price: {
       type: Number,
       required: true,
@@ -101,16 +102,13 @@ const linkedAccountsSchema = new mongoose.Schema({
 // todo add address field 1 and 2  done
 // todo add the country done
 // todo first name and last name done
-//here we go not done
+//here we go not done 
 const userSchema = new mongoose.Schema({
-
-  user_id: {
-    type: String, // UUIDs are strings
-    default: uuid.v4, // Automatically generate a UUID
-    unique: true,
+  _id: {
+    type: String,  // Change from ObjectId to String to accept UUIDs
     required: true,
+    unique: true,
   },
-
   username: {
     type: String,
     unique: false,
@@ -119,8 +117,6 @@ const userSchema = new mongoose.Schema({
     trim: true, // Remove extra spaces
     match: /^[a-zA-Z0-9_.-]*$/, // Allow letters, numbers, underscore, dot, and hyphen
   },
-  
-   
     password_hash: {
         type: String,
         required: true

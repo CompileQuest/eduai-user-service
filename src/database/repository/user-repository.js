@@ -17,29 +17,34 @@ class CustomerRepository {
     
 
 ///////////////////////////////////////////////////
-async CreateUser({ email, password_hash }) {
-    try {
-      if (!email || !password_hash) {
-        throw new Error('Missing required fields: email or password_hash');
-      }
-  
-      const user = new UserModel({
-        email,
-        password_hash,
-      });
-  
-      const userResult = await user.save();
-      return userResult;
-    } catch (err) {
-      console.error(err);
-      throw new APIError(
-        'API Error',
-        STATUS_CODES.INTERNAL_ERROR,
-        'Unable to Create User'
-      );
+    async CreateUser({ email, password_hash, userId, role, emailVerfied, userTimeJoined }) {
+        try {
+            // Validate required fields
+            if (!email || !password_hash || !userId || !role ) {
+                throw new Error('Missing required fields: email, password_hash, or userId or role');
+            }
+            console.log("this is the user id ", userId);
+            // Create a new user instance, setting the userId as _id
+            const user = new UserModel({
+                _id: userId,  // Set the userId as _id
+                email, 
+                password_hash,
+                role,
+                email_verified: emailVerfied,
+            });
+            // Save the new user to the database
+            const userResult = await user.save();
+            return userResult;
+        } catch (err) {
+            console.error(err);
+            throw new APIError(
+                'API Error',
+                STATUS_CODES.INTERNAL_ERROR,
+                'Unable to Create User'
+            );
+        }
     }
-  }
-  
+
   async GetAllUsers() {
     try {
         console.log("GetAllUsers called");

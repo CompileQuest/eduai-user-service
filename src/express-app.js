@@ -2,6 +2,7 @@ const express = require('express');
 const cors  = require('cors');
 const { UserRouter } = require('./api/routes');
 const HandleErrors = require('./utils/error-handler')
+const appEvent = require('./api/routes/app-events')
 
 
 module.exports = async (app) => {
@@ -16,9 +17,8 @@ module.exports = async (app) => {
     //     next();
     // })
     // Listen to Events
-    // appEvent(app);
+     appEvent(app);
 
-  
 
     //api
     UserRouter(app);

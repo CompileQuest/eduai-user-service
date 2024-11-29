@@ -8,10 +8,8 @@ module.exports = (app) => {
 
     app.post("/signup", async (req, res, next) => {
         try {
-            const { email, password } = req.body;
-      
-            const { data } = await service.AddUser(email, password);
-      
+            const userData = req.body;
+            const { data } = await service.AddUser(userData);
             return res.status(201).json(data);
         } catch (err) {
             next(err);
