@@ -10,5 +10,6 @@ module.exports = (app) => {
         const result = await service.SubscribeEvents(payload);
         console.log("========= User Service received Event =========");
         res.status(200).json(result);
-    })
-}
+    }) 
+}  
+ 

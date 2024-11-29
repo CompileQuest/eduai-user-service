@@ -19,8 +19,6 @@ class UserService {
     //////////////////////////////////////////
     async AddUser(userData) {
         const { email, password, role, userId, emailVerfied, userTimeJoined } = userData; // Destructure userId from the input
-        console.log("this is it ", email);
-        console.log("this is it ", password);
 
         try {
             // Generate a salt for password hashing
