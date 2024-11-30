@@ -6,7 +6,37 @@ module.exports = (app) => {
     const service = new UserService();
 
 
+
+
+
+
+
     app.post("/signup", async (req, res, next) => {
+        try {
+          const { email, password, birthdate, first_name, last_name, address_line_1, address_line_2, role, country } = req.body;
+      
+          const userData = {
+            email,
+            password,
+            birthdate,
+            first_name,
+            last_name,
+            address_line_1,
+            address_line_2,
+            role,
+            country,
+          };
+      
+          const { data } = await service.AddUser(userData);
+      
+          return res.status(201).json(data);
+        } catch (err) {
+          next(err);
+        }
+      });
+      
+
+   /* app.post("/signup", async (req, res, next) => {
         try {
             const { email, password } = req.body;
       
@@ -17,7 +47,7 @@ module.exports = (app) => {
             next(err);
         }
     });
-
+*/
     //      all users
     app.get('/users', async (req, res, next) => {
         try {

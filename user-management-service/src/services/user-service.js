@@ -13,7 +13,39 @@ class UserService {
     }
 
 //////////////////////////////////////////
-async AddUser(email, password) {
+
+async AddUser(userData) {
+    try {
+      const { email, password, birthdate, first_name, last_name, address_line_1, address_line_2, role, country } = userData;
+  
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+  
+      const newUser = await this.repository.CreateUser({
+        email,
+        password_hash: hashedPassword,
+        birthdate,
+        first_name,
+        last_name,
+        address_line_1,
+        address_line_2,
+        role,
+        country,
+      });
+  
+      return FormateData(newUser);
+    } catch (err) {
+      throw new APIError(
+        'User Creation Error',
+        undefined,
+        err.message,
+        true
+      );
+    }
+  }
+  
+
+/*async AddUser(email, password) {
     try {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -33,7 +65,7 @@ async AddUser(email, password) {
       );
     }
   }
-  
+  */
 ////////////all users ////////////////////////
 
 

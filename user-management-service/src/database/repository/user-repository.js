@@ -1,5 +1,6 @@
 const { CustomerModel, AddressModel } = require("../models");
 const UserModel = require('../models/User'); // Adjust the path to the location of your User model file
+const CourseWishlist = require('../models/courseWishlist');
 
 const {
     APIError,
@@ -17,7 +18,53 @@ class CustomerRepository {
     
 
 ///////////////////////////////////////////////////
-async CreateUser({ email, password_hash }) {
+
+async CreateUser({ email, password_hash, birthdate, first_name, last_name, address_line_1, address_line_2, role, country }) {
+    try {
+      if (!email || !password_hash) {
+        throw new Error('Missing required fields: email or password_hash');
+      }
+  
+      // Create the user
+      const user = new UserModel({
+        email,
+        password_hash,
+        birthdate,
+        first_name,
+        last_name,
+        address_line_1,
+        address_line_2,
+        role,
+        country,
+      });
+  
+      const userResult = await user.save();
+  
+      // Create an empty wishlist for the user
+      const wishlist = new CourseWishlist({
+        user_id: userResult.user_id,
+        wishlist_courses: [], // Initialize with an empty array to be used later
+      });
+  
+      const wishlistResult = await wishlist.save();
+  
+      userResult.wishlist_id = wishlistResult._id;
+      await userResult.save();
+  
+      return userResult;
+    } catch (err) {
+      console.error(err);
+      throw new APIError(
+        'API Error',
+        STATUS_CODES.INTERNAL_ERROR,
+        'Unable to Create User and Wishlist'
+      );
+    }
+  }
+  
+
+
+/*async CreateUser({ email, password_hash }) {
     try {
       if (!email || !password_hash) {
         throw new Error('Missing required fields: email or password_hash');
@@ -39,7 +86,7 @@ async CreateUser({ email, password_hash }) {
       );
     }
   }
-  
+  */
   async GetAllUsers() {
     try {
         console.log("GetAllUsers called");
