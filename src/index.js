@@ -6,12 +6,15 @@ const express = require('express');
 const { PORT } = require('./config');
 const { DatabaseConnection } = require('./database');
 const expressApp = require('./express-app');
+const RabbitMQClient = require("./messageQueue/client");
+
 const StartServer = async() => {
 
     const app = express();
     
     await DatabaseConnection();
-    
+    RabbitMQClient.initialize();
+
     await expressApp(app);
     
     app.listen(PORT, () => {

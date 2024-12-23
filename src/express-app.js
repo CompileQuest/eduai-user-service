@@ -22,6 +22,8 @@ module.exports = async (app) => {
     apiRoutes(app);
     //app.use( apiRoutes);  // All versioned routes are under /api
 
+    // initialize the rabbit mq 
+
 
     // error handling
     app.use(HandleErrors);
