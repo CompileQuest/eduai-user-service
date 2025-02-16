@@ -8,8 +8,9 @@ export default class Producer {
     private channel: Channel,
     private replyQueueName: string,
     private eventEmitter: EventEmitter
-  ) {}
-
+  ) { }
+  
+  // here for producing message with block waiting 
   async produceMessages(data: any) {
     const uuid = randomUUID();
     console.log("the corr id is ", uuid);
@@ -33,4 +34,8 @@ export default class Producer {
       });
     });
   }
+
+
+  // produce messages without any block waiting fire and forget here
+  
 }

@@ -3,6 +3,7 @@ const config = require("./config");
 const Consumer = require("./consumer");
 const Producer = require("./producer");
 
+
 class RabbitMQClient {
     constructor() {
         if (RabbitMQClient.instance) {
@@ -38,13 +39,15 @@ class RabbitMQClient {
             this.producerChannel = await this.connection.createChannel();
             this.consumerChannel = await this.connection.createChannel();
 
-            const { queue: rpcQueue } = await this.consumerChannel.assertQueue(
-                config.rabbitMQ.queues.rpcQueue,
-                { exclusive: true }
-            );
+            // Assert multiple queues
+            const rpcQueues = [];
+            for (const queueName of config.rabbitMQ.queues.rpcQueues) {
+                const { queue } = await this.consumerChannel.assertQueue(queueName, { exclusive: true });
+                rpcQueues.push(queue);
+            }
 
             this.producer = new Producer(this.producerChannel);
-            this.consumer = new Consumer(this.consumerChannel, rpcQueue);
+            this.consumer = new Consumer(this.consumerChannel, rpcQueues);
 
             this.consumer.consumeMessages();
 

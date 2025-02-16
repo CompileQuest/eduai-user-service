@@ -1,5 +1,3 @@
-
-
 const rabbitClient = require("./client");
 
 class MessageHandler {

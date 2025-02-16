@@ -1,36 +1,35 @@
-const { Channel } = require("amqplib");
-const MessageHandler = require("./messageHandler");
-
 class Consumer {
-    constructor(channel, rpcQueue) {
+    constructor(channel, rpcQueues) {
         this.channel = channel;
-        this.rpcQueue = rpcQueue;
+        this.rpcQueues = rpcQueues; // Array of queues
     }
 
     async consumeMessages() {
         console.log("Ready to consume messages...");
 
-        this.channel.consume(
-            this.rpcQueue,
-            async (message) => {
-                const { correlationId, replyTo } = message.properties;
-                const operation = message.properties.headers.function;
+        for (const rpcQueue of this.rpcQueues) {
+            this.channel.consume(
+                rpcQueue,
+                async (message) => {
+                    const { correlationId, replyTo } = message.properties;
+                    const operation = message.properties.headers.function;
 
-                if (!correlationId || !replyTo) {
-                    console.log("Missing some properties...");
+                    if (!correlationId || !replyTo) {
+                        console.log("Missing some properties...");
+                    }
+                    console.log("Consumed from queue:", rpcQueue, JSON.parse(message.content.toString()));
+                    await MessageHandler.handle(
+                        operation,
+                        JSON.parse(message.content.toString()),
+                        correlationId,
+                        replyTo
+                    );
+                },
+                {
+                    noAck: true,
                 }
-                console.log("Consumed", JSON.parse(message.content.toString()));
-                await MessageHandler.handle(
-                    operation,
-                    JSON.parse(message.content.toString()),
-                    correlationId,
-                    replyTo
-                );
-            },
-            {
-                noAck: true,
-            }
-        );
+            );
+        }
     }
 }
 
