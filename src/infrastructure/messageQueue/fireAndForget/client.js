@@ -2,7 +2,7 @@ const { connect } = require("amqplib");
 const config = require("./config");
 const Consumer = require("./consumer");
 const Producer = require("./producer");
-
+const Message = require("./messageTemplate");
 
 class RabbitMQClient {
     constructor() {
@@ -29,45 +29,41 @@ class RabbitMQClient {
 
     async initialize() {
         if (this.isInitialized) {
-            console.log("instance of rabbit client exited ", this.isInitialized);
+            console.log("RabbitMQ client is already initialized.");
             return;
         }
 
         try {
             this.connection = await connect(config.rabbitMQ.url);
-
             this.producerChannel = await this.connection.createChannel();
             this.consumerChannel = await this.connection.createChannel();
 
             // Assert multiple queues
-            const rpcQueues = [];
-            for (const queueName of config.rabbitMQ.queues.rpcQueues) {
-                const { queue } = await this.consumerChannel.assertQueue(queueName, { exclusive: true });
-                rpcQueues.push(queue);
+            const Queues = [];
+            for (const queueName of config.rabbitMQ.queues) {
+                const { queue } = await this.consumerChannel.assertQueue(queueName, { durable: true });
+                Queues.push(queue);
             }
 
             this.producer = new Producer(this.producerChannel);
-            this.consumer = new Consumer(this.consumerChannel, rpcQueues);
+            this.consumer = new Consumer(this.consumerChannel, Queues);
 
             this.consumer.consumeMessages();
 
             this.isInitialized = true;
-            console.log("created a new instance of client rabbit");
+            console.log("RabbitMQ client initialized.");
 
         } catch (error) {
-            console.log("RabbitMQ error...", error);
+            console.error("RabbitMQ error:", error);
         }
     }
 
-    async produce(data, correlationId, replyToQueue) {
+    async produce(queueName, data) {
         if (!this.isInitialized) {
             await this.initialize();
         }
-        return await this.producer.produceMessages(
-            data,
-            correlationId,
-            replyToQueue
-        );
+        const message = new Message("test", "course-service", data);
+        return await this.producer.processMessage(queueName, message);
     }
 }
 
