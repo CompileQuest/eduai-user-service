@@ -1,7 +1,8 @@
-// messageTemplate.js
+const { v4: uuidv4 } = require('uuid'); // Import UUID library
+
 module.exports = class Message {
     constructor(type, source, payload, metadata = {}) {
-        this.id = `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`; // Unique ID
+        this.id = uuidv4(); // Generate a UUID
         this.type = type; // Message type (e.g., "user.deleted", "video.delete")
         this.timestamp = new Date().toISOString(); // Current timestamp
         this.source = source; // Source of the message

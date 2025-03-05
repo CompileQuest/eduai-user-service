@@ -1,7 +1,6 @@
-const { RABBITMQ_URL } = require('../../../config/index');
-const { RABBITMQ_URL } = require("../../config/index");
+const { RABBITMQ_URL } = require('../../../../../config/index');
 const bindingsConfig = require("./bindingsConfig");
-const serviceName = "course_service"; // Change per service
+const serviceName = "user_service"; // Change per service
 module.exports = {
     rabbitMQ: {
         url: RABBITMQ_URL,
