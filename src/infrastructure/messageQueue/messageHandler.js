@@ -1,8 +1,8 @@
-const CourseService = require("../../services/course-service");
+const UserService = require("../../services/user-service");
 
 class MessageHandler {
     constructor() {
-        this.courseService = new CourseService();
+        this.courseService = new UserService();
 
         // Bind methods to preserve `this` context
         this.handleCloudinaryUpload = this.handleCloudinaryUpload.bind(this);
