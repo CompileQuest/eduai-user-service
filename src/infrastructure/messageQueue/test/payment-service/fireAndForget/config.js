@@ -1,11 +1,11 @@
-const { ConsumerQueues } = require('./queues/consumerQueues')
-const { ProducerQueues } = require('./queues/producerQueues');
-const { RABBITMQ_URL } = require('../../../config/index');
+const { RABBITMQ_URL } = require('../../../../../config/index');
+const bindingsConfig = require("./bindingsConfig");
+const serviceName = "payment_service"; // Change per service
 module.exports = {
     rabbitMQ: {
-        url: RABBITMQ_URL,// Change to your RabbitMQ server URL
-        queues: Object.values(ConsumerQueues), // Use consumer queues
+        url: RABBITMQ_URL,
+        exchange: bindingsConfig[serviceName].exchange,
+        queue: bindingsConfig[serviceName].queue,
+        bindings: bindingsConfig[serviceName].bindings,
     },
-    ConsumerQueues, // Export consumer queues for reuse
-    ProducerQueues
 };

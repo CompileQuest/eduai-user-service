@@ -1,18 +1,43 @@
-const RabbitMQClient = require("./client");
+const rabbitMQClient = require('./RabbitMQClient'); // Import the RabbitMQ client
+const { RoutingKeys } = require('./routingKeys'); // Import routing keys
+const Message = require('./messageTemplate'); // Import the Message class
 
-(async () => {
+// Simulate the payment service
+async function simulatePaymentService() {
+    console.log("Simulating Payment Service...");
+
+    // Simulate a payment completion event
+    const paymentCompletedPayload = {
+        userId: "123",
+        courseId: "456",
+        amount: 100,
+        transactionId: "txn_789",
+    };
+    const paymentCompletedMessage = new Message(RoutingKeys.PAYMENT_COMPLETED, "payment_service", paymentCompletedPayload);
+    await rabbitMQClient.produce(RoutingKeys.PAYMENT_COMPLETED, paymentCompletedMessage);
+    console.log("Payment Service: Published PAYMENT_COMPLETED event.");
+}
+
+// Main function to run the simulation
+async function main() {
     try {
-        // Initialize RabbitMQ client
-        await RabbitMQClient.initialize();
-        console.log("RabbitMQ client is running...");
+        // Wait for RabbitMQ client to initialize
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds for initialization
 
-        // Send a test message
-        const testPayload = { userId: "12345", action: "course_enrolled" };
-        // await RabbitMQClient.produce("course_task_queue", testPayload);
+        // Simulate the payment service
+        await simulatePaymentService();
 
-        //onsole.log("Message sent successfully!");
-
+        // Keep the process alive to allow message consumption
+        console.log("Payment Service: Waiting for messages...");
+        setTimeout(() => {
+            console.log("Payment Service: Simulation complete.");
+            process.exit(0); // Exit after 10 seconds
+        }, 10000); // Wait 10 seconds for messages to be consumed
     } catch (error) {
-        console.error("Error starting RabbitMQ client:", error);
+        console.error("Error in Payment Service simulation:", error);
+        process.exit(1); // Exit with error code
     }
-})();
+}
+
+// Run the simulation
+main();
