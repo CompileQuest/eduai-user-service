@@ -1,17 +1,21 @@
-
 import express from "express";
-import UserService from "../../../services/user-service.js";
-
-
-const userService = new UserService();
+import { handleEvent } from "../../../services/event-handler.js";
 const router = express.Router();
-// exposing a webhook for other serivces 
-router.post('/app-events', async (req, res, next) => {
-    const { payload } = req.body;
-    console.log("user event gets ", payload)
-    const result = await userService.SubscribeEvents(payload);
-    console.log("========= User Service received Event =========");
-    res.status(200).json(result);
-})
+
+// Expose a webhook for other services
+router.post("/", async (req, res, next) => {
+    try {
+        const { type, payload } = req.body; // Extract event type and payload
+        console.log(`Received event: ${type}`);
+
+        const result = await handleEvent(type, payload);
+        res.status(200).json({
+            message: `Handled event: ${type}`,
+            result,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
 
 export default router;
