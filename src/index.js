@@ -2,11 +2,12 @@
 // todo : unit testing for each layer 
 
 
-const express = require('express');
-const { PORT } = require('./config');
-const { DatabaseConnection } = require('./database');
-const expressApp = require('./express-app');
-const RabbitMQClient = require("./infrastructure/messageQueue/fireAndForget/RabbitMQClient");
+import express from 'express';
+import { PORT } from './config/index.js';
+import DatabaseConnection from './database/connection.js';
+import expressApp from './express-app.js';
+import RabbitMQClient from './infrastructure/messageQueue/fireAndForget/RabbitMQClient.js';
+
 
 const StartServer = async () => {
 

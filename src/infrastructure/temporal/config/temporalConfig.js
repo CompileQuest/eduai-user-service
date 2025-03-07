@@ -1,4 +1,4 @@
-const { Connection, Client } = require('@temporalio/client');
+import { Connection, Client } from '@temporalio/client';
 async function createTemporalClient() {
     const connection = await Connection.connect({
         address: 'eu-west-1.aws.api.temporal.io:7233', // Replace with your Temporal Cloud endpoint

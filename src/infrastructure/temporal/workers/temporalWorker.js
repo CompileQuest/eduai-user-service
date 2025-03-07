@@ -1,6 +1,6 @@
-const { NativeConnection, Worker } = require('@temporalio/worker');
-const { helloWorldWorkflow } = require('../workflows/helloWorldWorkflow');
-const { greet } = require('../activities/greetActivity');
+import { NativeConnection, Worker } from '@temporalio/worker';
+import { helloWorldWorkflow } from '../workflows/helloWorldWorkflow.js';
+import { greet } from '../activities/greetActivity.js';
 
 async function runWorker() {
     const connection = await NativeConnection.connect({

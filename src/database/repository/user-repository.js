@@ -1,33 +1,31 @@
-const { CustomerModel, AddressModel } = require("../models");
-const UserModel = require('../models/User'); // Adjust the path to the location of your User model file
-
-const {
+import UserModel from '../models/User.js'; // Adjust the path to the location of your User model file
+import {
     APIError,
     BadRequestError,
     STATUS_CODES,
-} = require("../../utils/app-errors");
+} from '../../utils/app-errors.js';
 
 
 //Dealing with data base operations
-class CustomerRepository {
+class UserRepository {
 
     constructor() {
         this.userModel = UserModel;
-      }
-    
+    }
 
-///////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////
     async CreateUser({ email, password_hash, userId, role, emailVerfied, userTimeJoined }) {
         try {
             // Validate required fields
-            if (!email || !password_hash || !userId || !role ) {
+            if (!email || !password_hash || !userId || !role) {
                 throw new Error('Missing required fields: email, password_hash, or userId or role');
             }
             console.log("this is the user id ", userId);
             // Create a new user instance, setting the userId as _id
             const user = new UserModel({
                 _id: userId,  // Set the userId as _id
-                email, 
+                email,
                 password_hash,
                 role,
                 email_verified: emailVerfied,
@@ -45,157 +43,157 @@ class CustomerRepository {
         }
     }
 
-  async GetAllUsers() {
-    try {
-        console.log("GetAllUsers called");
-      const users = await this.userModel.find(); 
- //     console.log(users);  // Retrieve all users
-      return users;
-    } catch (err) {
-      console.error(err);
-      throw new APIError(
-        'Database Error',
-        STATUS_CODES.INTERNAL_ERROR,
-        'Unable to Retrieve Users'
-      );
+    async GetAllUsers() {
+        try {
+            console.log("GetAllUsers called");
+            const users = await this.userModel.find();
+            //     console.log(users);  // Retrieve all users
+            return users;
+        } catch (err) {
+            console.error(err);
+            throw new APIError(
+                'Database Error',
+                STATUS_CODES.INTERNAL_ERROR,
+                'Unable to Retrieve Users'
+            );
+        }
     }
-  }
-//////////get user by id/////
+    //////////get user by id/////
 
 
-async GetUserById(userId) {
-    try {
-        if (!userId) {
-            throw new Error('User ID is required');
+    async GetUserById(userId) {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required');
+            }
+
+            const user = await UserModel.findOne({ user_id: userId.trim() }).lean(); // .lean() improves read performance by returning plain JS objects a7a awel mara a3raf el kalam da
+
+            if (!user) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+
+            return user;
+        } catch (err) {
+            console.error('Error retrieving user:', err);
+            throw new Error('Error retrieving user');
         }
-
-        const user = await UserModel.findOne({ user_id: userId.trim() }).lean(); // .lean() improves read performance by returning plain JS objects a7a awel mara a3raf el kalam da
-
-        if (!user) {
-            throw new Error(`User with ID ${userId} not found`);
-        }
-
-        return user; 
-    } catch (err) {
-        console.error('Error retrieving user:', err);
-        throw new Error('Error retrieving user');
     }
-}
 
 
-////delete user/////
+    ////delete user/////
 
-async DeleteUserById(userId) {
-    try {
-        // Ensure userId is trimmed of any extra characters
-        const trimmedUserId = userId.trim();
-//console.log(trimmedUserId);
-        // Find and delete the user by their UUID
-        const user = await UserModel.findOneAndDelete({ user_id: trimmedUserId });
-//console.log(user);
-        if (!user) {
-            throw new Error(`User with ID ${userId} not found`);
+    async DeleteUserById(userId) {
+        try {
+            // Ensure userId is trimmed of any extra characters
+            const trimmedUserId = userId.trim();
+            //console.log(trimmedUserId);
+            // Find and delete the user by their UUID
+            const user = await UserModel.findOneAndDelete({ user_id: trimmedUserId });
+            //console.log(user);
+            if (!user) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+
+            return user; // Return the deleted user data
+        } catch (err) {
+            console.error(err);
+            throw new Error('Error deleting user');
         }
-
-        return user; // Return the deleted user data
-    } catch (err) {
-        console.error(err);
-        throw new Error('Error deleting user');
     }
-}
 
-////////update user//////
+    ////////update user//////
 
 
-async UpdateUserById(userId, updates) {
-    try {
-        if (!userId) {
-            throw new Error('User ID is required');
+    async UpdateUserById(userId, updates) {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required');
+            }
+
+            updates.updated_at = new Date();// here any touch update automatically updated_at
+
+            const updatedUser = await UserModel.findOneAndUpdate(
+                { user_id: userId.trim() }, // Match by user_id
+                { $set: updates },          // Apply updates
+                { new: true, runValidators: true } // Return the updated document and validate inputs
+            );
+            //console.log(updatedUser);
+            if (!updatedUser) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+
+            return updatedUser;
+        } catch (err) {
+            console.error('Error updating user:', err);
+            throw new Error('Error updating user');
         }
-
-        updates.updated_at = new Date();// here any touch update automatically updated_at
-
-        const updatedUser = await UserModel.findOneAndUpdate(
-            { user_id: userId.trim() }, // Match by user_id
-            { $set: updates },          // Apply updates
-            { new: true, runValidators: true } // Return the updated document and validate inputs
-        );
-//console.log(updatedUser);
-        if (!updatedUser) {
-            throw new Error(`User with ID ${userId} not found`);
-        }
-
-        return updatedUser;
-    } catch (err) {
-        console.error('Error updating user:', err);
-        throw new Error('Error updating user');
     }
-}
-////////////////////notification/////////////////////
-async GetNotificationSettings(userId) {
-    try {
-        if (!userId) {
-            throw new Error('User ID is required to retrieve notification settings');
+    ////////////////////notification/////////////////////
+    async GetNotificationSettings(userId) {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required to retrieve notification settings');
+            }
+
+            const user = await UserModel.findOne({ user_id: userId.trim() }).select('notification_settings').lean();
+
+            if (!user) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+
+            return user.notification_settings;
+        } catch (err) {
+            console.error('Error retrieving notification settings:', err);
+            throw new Error('Error retrieving notification settings');
         }
-
-        const user = await UserModel.findOne({ user_id: userId.trim() }).select('notification_settings').lean();
-
-        if (!user) {
-            throw new Error(`User with ID ${userId} not found`);
-        }
-
-        return user.notification_settings;
-    } catch (err) {
-        console.error('Error retrieving notification settings:', err);
-        throw new Error('Error retrieving notification settings');
     }
-}
 
-async UpdateNotificationSettings(userId, notificationSettings) {
-    try {
-        if (!userId) {
-            throw new Error('User ID is required to update notification settings');
+    async UpdateNotificationSettings(userId, notificationSettings) {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required to update notification settings');
+            }
+
+            const updatedUser = await UserModel.findOneAndUpdate(
+                { user_id: userId.trim() },
+                { notification_settings: notificationSettings },
+                { new: true, runValidators: true } // Return updated user and validate input
+            ).select('notification_settings').lean();
+
+            if (!updatedUser) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+
+            return updatedUser.notification_settings;
+        } catch (err) {
+            console.error('Error updating notification settings:', err);
+            throw new Error('Error updating notification settings');
         }
-
-        const updatedUser = await UserModel.findOneAndUpdate(
-            { user_id: userId.trim() },
-            { notification_settings: notificationSettings },
-            { new: true, runValidators: true } // Return updated user and validate input
-        ).select('notification_settings').lean();
-
-        if (!updatedUser) {
-            throw new Error(`User with ID ${userId} not found`);
-        }
-
-        return updatedUser.notification_settings;
-    } catch (err) {
-        console.error('Error updating notification settings:', err);
-        throw new Error('Error updating notification settings');
     }
-}
-//////////progile pic/////
-async UpdateProfileImage(userId, profileImageUrl) {
-    try {
-        if (!userId) {
-            throw new Error('User ID is required to update profile image');
+    //////////progile pic/////
+    async UpdateProfileImage(userId, profileImageUrl) {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required to update profile image');
+            }
+
+            const updatedUser = await UserModel.findOneAndUpdate(
+                { user_id: userId.trim() },
+                { profile_picture_url: profileImageUrl },
+                { new: true, runValidators: true } // Validate the URL and return the updated document
+            ).select('profile_picture_url').lean();
+
+            if (!updatedUser) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+
+            return updatedUser.profile_picture_url;
+        } catch (err) {
+            console.error('Error updating profile image:', err);
+            throw new Error('Error updating profile image');
         }
-
-        const updatedUser = await UserModel.findOneAndUpdate(
-            { user_id: userId.trim() },
-            { profile_picture_url: profileImageUrl },
-            { new: true, runValidators: true } // Validate the URL and return the updated document
-        ).select('profile_picture_url').lean();
-
-        if (!updatedUser) {
-            throw new Error(`User with ID ${userId} not found`);
-        }
-
-        return updatedUser.profile_picture_url;
-    } catch (err) {
-        console.error('Error updating profile image:', err);
-        throw new Error('Error updating profile image');
     }
-}
 
 
 
@@ -206,7 +204,7 @@ async UpdateProfileImage(userId, profileImageUrl) {
             const customer = new CustomerModel({
                 email,
                 password,
-                
+
                 phone,
                 address: [],
             });
@@ -289,6 +287,7 @@ async UpdateProfileImage(userId, profileImageUrl) {
             );
         }
     }
+
     async AddWishlistItem(customerId, { _id, name, desc, price, available, banner }) {
         console.log(`AddWishlistItem called for customer ${customerId} with product ID: ${_id}`);
 
@@ -408,4 +407,4 @@ async UpdateProfileImage(userId, profileImageUrl) {
     }
 }
 
-module.exports = CustomerRepository;
+export default UserRepository;

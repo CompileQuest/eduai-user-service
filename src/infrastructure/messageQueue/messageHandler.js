@@ -1,5 +1,4 @@
-const UserService = require("../../services/user-service");
-
+import UserService from "../../services/user-service.js";
 class MessageHandler {
     constructor() {
         this.courseService = new UserService();
@@ -80,4 +79,4 @@ class MessageHandler {
     }
 }
 
-module.exports = MessageHandler;
+export default MessageHandler;

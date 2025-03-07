@@ -1,14 +1,9 @@
-const { UserRepository } = require("../database");
-const {
+import UserRepository from "../database/repository/user-repository.js";
+import {
     FormateData,
-    GeneratePassword,
-    GenerateSalt,
-    GenerateSignature,
-    ValidatePassword,
-} = require("../utils");
-const { APIError, BadRequestError } = require("../utils/app-errors");
-
-const bcrypt = require("bcrypt");
+} from "../utils/index.js";
+import { APIError, BadRequestError } from "../utils/app-errors.js";
+import bcrypt from "bcrypt";
 
 // All Business logic will be here
 class UserService {
@@ -196,7 +191,7 @@ class UserService {
     async SubscribeEvents(payload) {
         const { event, data } = payload;
         switch (event) {
-            case "CREATE_USER": 
+            case "CREATE_USER":
                 return await this.AddUser(data);
                 break;
             case "TESTING":
@@ -208,5 +203,4 @@ class UserService {
     }
 }
 
-module.exports = UserService;
- 
+export default UserService;

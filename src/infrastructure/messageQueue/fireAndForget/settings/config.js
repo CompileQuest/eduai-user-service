@@ -1,7 +1,8 @@
-const { RABBITMQ_URL, SERVICE_NAME } = require('../../../../config/index');
-const bindingsConfig = require("./bindingsConfig");
-console.log(SERVICE_NAME);
-module.exports = {
+import { RABBITMQ_URL, SERVICE_NAME } from '../../../../config/index.js';
+import bindingsConfig from './bindingsConfig.js';
+
+
+export default {
     rabbitMQ: {
         url: RABBITMQ_URL,
         exchange: bindingsConfig[SERVICE_NAME].exchange,

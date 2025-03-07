@@ -1,8 +1,7 @@
-const UserRouterV1 = require('./v1/user');
-const appEvent = require('./v1/app-events');
-module.exports = (app) => {
-    app.use('/api/v1/user', UserRouterV1); // Register version 1 routes
-    // Add more versions or route groups as needed
-    app.use('/api/v1/user', appEvent);
-    
+import UserRouterV1 from './v1/user.js';
+import appEventRouterV1 from './v1/app-events.js';
+
+export default (app) => {
+    app.use('/api/v1/user', UserRouterV1);
+    app.use('/api/v1/app-events', appEventRouterV1); // Corrected route path.
 };

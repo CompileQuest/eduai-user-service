@@ -1,4 +1,4 @@
-const { defineSignal, setHandler, sleep } = require('@temporalio/workflow');
+import { defineSignal, setHandler, sleep } from '@temporalio/workflow';
 
 const greetSignal = defineSignal('greet');
 
@@ -21,4 +21,4 @@ async function helloWorldWorkflow(name) {
     return greeting || `Hello, ${name}`;
 }
 
-module.exports = { helloWorldWorkflow };
+export { helloWorldWorkflow };

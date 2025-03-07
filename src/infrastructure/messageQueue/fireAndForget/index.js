@@ -1,6 +1,6 @@
-const rabbitMQClient = require('./RabbitMQClient'); // Import the RabbitMQ client
-const { RoutingKeys } = require('./settings/routingKeys'); // Import routing keys
-const Message = require('./settings/messageTemplate'); // Import the Message class
+
+import rabbitMQClient from './RabbitMQClient';
+import { RoutingKeys } from './settings/routingKeys';
 
 // Simulate the user service
 async function simulateUserService() {
@@ -12,17 +12,12 @@ async function simulateUserService() {
         name: "John Doe",
         email: "john.doe@example.com",
     };
-    const userCreatedMessage = new Message(RoutingKeys.USER_CREATED, "user_service", userCreatedPayload);
-    await rabbitMQClient.produce(RoutingKeys.USER_CREATED, userCreatedMessage);
-    console.log("User Service: Published USER_CREATED event.");
-
+    await rabbitMQClient.produce(RoutingKeys.USER_CREATED, userCreatedPayload);
     // Simulate a user deletion event
     const userDeletedPayload = {
         userId: "123",
     };
-    const userDeletedMessage = new Message(RoutingKeys.USER_DELETED, "user_service", userDeletedPayload);
-    await rabbitMQClient.produce(RoutingKeys.USER_DELETED, userDeletedMessage);
-    console.log("User Service: Published USER_DELETED event.");
+    await rabbitMQClient.produce(RoutingKeys.USER_DELETED_SOFT, userDeletedPayload);
 }
 
 // Main function to run the simulation

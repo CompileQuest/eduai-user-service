@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 
 
+
 // todo make last thing 
 // Define the schema for account deletion events
 const accountDeletionSchema = new mongoose.Schema({
@@ -34,7 +35,7 @@ const accountDeletionSchema = new mongoose.Schema({
     type: Date,
     required: true,
     validate: {
-      validator: function(value) {
+      validator: function (value) {
         return value > this.deletion_date;  // Ensure data retention is after the deletion date
       },
       message: 'Data retention date must be after the deletion date'
@@ -44,7 +45,7 @@ const accountDeletionSchema = new mongoose.Schema({
     type: Date,
     required: true,
     validate: {
-      validator: function(value) {
+      validator: function (value) {
         return value > this.deletion_date;  // Ensure recovery is after the deletion date
       },
       message: 'Recovery availability date must be after the deletion date'

@@ -2,4 +2,4 @@ async function greet(name) {
     return `Hello, ${name}`;
 }
 
-module.exports = { greet };
+export { greet };
