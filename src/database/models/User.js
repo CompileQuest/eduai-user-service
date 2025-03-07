@@ -49,28 +49,7 @@ const socialProfilesSchema = new mongoose.Schema({
 }, { _id: false });
 
 
-const linkedAccountsSchema = new mongoose.Schema({
-  facebook: {
-    linked: { type: Boolean, default: false },
-    one_click_login: { type: Boolean, default: false },
-    recommendations_enabled: { type: Boolean, default: false }
-  },
-  google: {
-    linked: { type: Boolean, default: false },
-    one_click_login: { type: Boolean, default: false },
-    recommendations_enabled: { type: Boolean, default: false }
-  },
-  github: {
-    linked: { type: Boolean, default: false },
-    one_click_login: { type: Boolean, default: false },
-    recommendations_enabled: { type: Boolean, default: false }
-  },
-  twitter: {
-    linked: { type: Boolean, default: false },
-    one_click_login: { type: Boolean, default: false },
-    recommendations_enabled: { type: Boolean, default: false }
-  }
-});
+
 
 const notificationSettingsSchema = new mongoose.Schema({
   enabled: { type: Boolean, required: true, default: true },
@@ -107,19 +86,14 @@ const userSchema = new mongoose.Schema({
   _id: {
     type: String,  // Change from ObjectId to String to accept UUIDs
     required: true,
-    unique: true,
   },
   username: {
     type: String,
-    unique: false,
-    required: false, // Optional unless you want it mandatory
+    unique: true,
+    required: true, // Optional unless you want it mandatory
     maxlength: 50, // Limit username length
     trim: true, // Remove extra spaces
     match: /^[a-zA-Z0-9_.-]*$/, // Allow letters, numbers, underscore, dot, and hyphen
-  },
-  password_hash: {
-    type: String,
-    required: true
   },
   email: {
     type: String,
@@ -193,8 +167,8 @@ const userSchema = new mongoose.Schema({
     default: 'active'
   },
   notification_settings: {
-    type: notificationSettingsSchema,
-    default: {}
+    type: String,  // Change from ObjectId to String to accept UUIDs
+    required: false,
   },
   privacy_setting: {
     type: mongoose.Schema.Types.UUID
@@ -202,10 +176,6 @@ const userSchema = new mongoose.Schema({
   wishlist_id: {
     type: mongoose.Schema.Types.ObjectId, // Reference to the wishlist collection//////////////////////////
     ref: 'CourseWishlist'
-  },
-  linked_accounts: {
-    type: linkedAccountsSchema,
-    default: {}
   },
   purchased_courses: [
     {
@@ -221,10 +191,6 @@ const userSchema = new mongoose.Schema({
   },
   social_profiles: {
     type: socialProfilesSchema,
-    default: {}
-  },
-  linked_accounts: {
-    type: linkedAccountsSchema, // Embed the linked accounts schema
     default: {}
   },
 });

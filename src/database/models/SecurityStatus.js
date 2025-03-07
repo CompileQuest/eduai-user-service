@@ -40,20 +40,6 @@ const securitySchema = new mongoose.Schema({
     type: Date, // Timestamp for when the password was last changed
     required: true
   },
-  password_reset_token: {
-    type: String, // Token for password reset
-    default: null
-  },
-  password_reset_expiration: {
-    type: Date, // Expiration date for the reset token
-    default: null,
-    validate: {
-      validator: function(value) {
-        return value > Date.now();  // Ensure token expiration is in the future
-      },
-      message: 'Password reset token has expired.'
-    }
-  },
   ip_address_last_failed_login: {
     type: String, // Tracks IP address from which the last failed login attempt was made
     default: null,
@@ -76,7 +62,7 @@ const securitySchema = new mongoose.Schema({
 });
 
 // Pre-save hook to update the `updated_at` timestamp
-securitySchema.pre('save', function(next) {
+securitySchema.pre('save', function (next) {
   this.updated_at = Date.now();
   next();
 });

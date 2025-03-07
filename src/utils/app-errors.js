@@ -16,6 +16,7 @@ class AppError extends Error {
     name,
     statusCode,
     description,
+    message,
     isOperational = true,
     errorStack = null,
     loggingErrorResponse = null
@@ -25,6 +26,8 @@ class AppError extends Error {
 
     this.name = name;
     this.statusCode = statusCode;
+    this.description = description;
+    this.message = message;
     this.isOperational = isOperational; // Determines if error is user-triggered
     this.errorStack = errorStack;
     this.logError = loggingErrorResponse;
@@ -40,9 +43,10 @@ class AppError extends Error {
 class APIError extends AppError {
   constructor(
     description = "Internal Server Error",
+    errMessage = "", // Accepts an error message
     isOperational = true
   ) {
-    super("API Error", STATUS_CODES.INTERNAL_ERROR, description, isOperational);
+    super("API Error", STATUS_CODES.INTERNAL_ERROR, description, errMessage, isOperational);
   }
 }
 
@@ -50,15 +54,12 @@ class APIError extends AppError {
  * 400 - Bad Request Error
  */
 class BadRequestError extends AppError {
-  constructor(description = "Bad Request", loggingErrorResponse = null) {
-    super(
-      "Bad Request",
-      STATUS_CODES.BAD_REQUEST,
-      description,
-      true,
-      null,
-      loggingErrorResponse
-    );
+  constructor(
+    description = "Bad Request",
+    errMessage = "", // Accepts an error message
+    isOperational = true
+  ) {
+    super("Bad Request", STATUS_CODES.BAD_REQUEST, description, errMessage, isOperational);
   }
 }
 
@@ -66,8 +67,12 @@ class BadRequestError extends AppError {
  * 401 - Unauthorized Error
  */
 class UnauthorizedError extends AppError {
-  constructor(description = "Unauthorized Access") {
-    super("Unauthorized", STATUS_CODES.UNAUTHORIZED, description, true);
+  constructor(
+    description = "Unauthorized Access",
+    errMessage = "", // Accepts an error message
+    isOperational = true
+  ) {
+    super("Unauthorized", STATUS_CODES.UNAUTHORIZED, description, errMessage, isOperational);
   }
 }
 
@@ -75,8 +80,12 @@ class UnauthorizedError extends AppError {
  * 403 - Forbidden Error
  */
 class ForbiddenError extends AppError {
-  constructor(description = "Forbidden Access") {
-    super("Forbidden", STATUS_CODES.FORBIDDEN, description, true);
+  constructor(
+    description = "Forbidden Access",
+    errMessage = "", // Accepts an error message
+    isOperational = true
+  ) {
+    super("Forbidden", STATUS_CODES.FORBIDDEN, description, errMessage, isOperational);
   }
 }
 
@@ -84,8 +93,12 @@ class ForbiddenError extends AppError {
  * 404 - Not Found Error
  */
 class NotFoundError extends AppError {
-  constructor(description = "Resource Not Found") {
-    super("Not Found", STATUS_CODES.NOT_FOUND, description, true);
+  constructor(
+    description = "Resource Not Found",
+    errMessage = "", // Accepts an error message
+    isOperational = true
+  ) {
+    super("Not Found", STATUS_CODES.NOT_FOUND, description, errMessage, isOperational);
   }
 }
 
@@ -93,8 +106,12 @@ class NotFoundError extends AppError {
  * 409 - Conflict Error
  */
 class ConflictError extends AppError {
-  constructor(description = "Conflict Occurred") {
-    super("Conflict", STATUS_CODES.CONFLICT, description, true);
+  constructor(
+    description = "Conflict Occurred",
+    errMessage = "", // Accepts an error message
+    isOperational = true
+  ) {
+    super("Conflict", STATUS_CODES.CONFLICT, description, errMessage, isOperational);
   }
 }
 
@@ -102,36 +119,25 @@ class ConflictError extends AppError {
  * 500 - Internal Server Error
  */
 class InternalServerError extends AppError {
-  constructor(description = "Internal Server Error") {
-    super("Internal Error", STATUS_CODES.INTERNAL_ERROR, description, false);
+  constructor(
+    description = "Internal Server Error",
+    errMessage = "", // Accepts an error message
+    isOperational = false // Typically not operational
+  ) {
+    super("Internal Error", STATUS_CODES.INTERNAL_ERROR, description, errMessage, isOperational);
   }
 }
-
-/**
- * Unified Error Response Handler (for Express.js)
- */
-// const errorHandler = (error, req, res, next) => {
-//     console.error("🔥 Error Intercepted:", {
-//         name: error.name,
-//         statusCode: error.statusCode || 500,
-//         message: error.message,
-//         stack: process.env.NODE_ENV === "development" ? error.stack : "Hidden",
-//     });
-
-//     res.status(error.statusCode || 500).json({
-//         success: false,
-//         statusCode: error.statusCode || 500,
-//         error: error.name,
-//         message: error.message,
-//     });
-// };
 
 /**
  * 503 - Service Unavailable Error
  */
 class ServiceUnavailableError extends AppError {
-  constructor(description = "Service Unavailable") {
-    super("Service Unavailable", STATUS_CODES.INTERNAL_ERROR, description, false);
+  constructor(
+    description = "Service Unavailable",
+    errMessage = "", // Accepts an error message
+    isOperational = false // Typically not operational
+  ) {
+    super("Service Unavailable", STATUS_CODES.INTERNAL_ERROR, description, errMessage, isOperational);
   }
 }
 
@@ -145,5 +151,5 @@ export {
   NotFoundError,
   ConflictError,
   InternalServerError,
-  ServiceUnavailableError, // Added here
+  ServiceUnavailableError,
 };

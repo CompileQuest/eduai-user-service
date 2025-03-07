@@ -4,6 +4,7 @@ import {
 } from "../utils/index.js";
 import { APIError, BadRequestError } from "../utils/app-errors.js";
 import bcrypt from "bcrypt";
+import ResponseHelper from "../utils/responseHelper.js";
 
 // All Business logic will be here
 class UserService {
@@ -13,29 +14,27 @@ class UserService {
 
     //////////////////////////////////////////
     async AddUser(userData) {
-        const { email, password, role, userId, emailVerfied, userTimeJoined } = userData; // Destructure userId from the input
-
+        const { email, role, userId, username, emailVerfied, userTimeJoined } = userData; // Destructure userId from the input
         try {
-            // Generate a salt for password hashing
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-
             // Call CreateUser and pass the userId, email, and hashed password
             const newUser = await this.repository.CreateUser({
                 email,
-                password_hash: hashedPassword,
                 userId,  // Include the userId
                 role,
+                username,
                 emailVerfied,
                 userTimeJoined
             });
 
             // Return the formatted result
-            return FormateData(newUser);
+            return ResponseHelper.success("created user successfuly", newUser);
         } catch (err) {
-            throw new APIError("User Creation Error", undefined, err.message, true);
+            console.log(err.message);
+            throw new APIError("User Creation Error", err.message, true);
         }
     }
+
+
 
 
     ////////////all users ////////////////////////

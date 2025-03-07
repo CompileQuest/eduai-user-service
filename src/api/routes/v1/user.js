@@ -15,11 +15,11 @@ router.get("/", async (req, res, next) => {
 
 
 
-router.post("/signup", async (req, res, next) => {
+router.post("/create_user", async (req, res, next) => {
     try {
         const userData = req.body;
-        const { data } = await service.AddUser(userData);
-        return res.status(201).json(data);
+        const response = await service.AddUser(userData);
+        return res.status(200).json(response);
     } catch (err) {
         next(err);
     }
