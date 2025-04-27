@@ -72,6 +72,14 @@ class UserRepository {
     }
 
 
+
+    async getUserCart(userId) {
+        const user = await UserModel.findById(userId)
+            .select('cart').lean();
+
+        return user ? user.cart : []; // Return the cart or an empty array if not found
+    }
+
     async GetAllUsers() {
         try {
             console.log("GetAllUsers called");
@@ -88,6 +96,34 @@ class UserRepository {
         }
     }
     //////////get user by id/////
+
+
+
+    async addToCart(userId, courseId) {
+        // Find the user cart by userId
+        const userCart = await this.model.findOne({ userId });
+
+        if (!userCart) {
+            // If the user doesn't have a cart, create a new cart (this can be customized)
+            const newCart = await this.model.create({ userId, courses: [courseId] });
+            return newCart;
+        }
+
+        // Check if the course is already in the cart
+        if (userCart.courses.includes(courseId)) {
+            return userCart; // No need to add it again
+        }
+
+        // Add the course to the user's cart
+        userCart.courses.push(courseId);
+
+        // Save the updated cart to the database
+        await userCart.save();
+
+        return userCart; // Return the updated cart
+    }
+
+
 
 
     async GetUserById(userId) {

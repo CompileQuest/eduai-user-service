@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { SERVICE_NAME } from '../../config';
+import { SERVICE_NAME } from '../../config/index.js';
 
 export default class HttpMessage {
     constructor(type, payload, metadata = {}) {

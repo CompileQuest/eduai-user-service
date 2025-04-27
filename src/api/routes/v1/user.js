@@ -2,6 +2,7 @@ import express from "express"
 import UserService from '../../../services/user-service.js';
 import { checkRole, getCurrentRole, getUserId, checkAuth } from "../../../middleware/auth/authHelper.js";
 import ROLES from "../../../config/Roles.js";
+import { BadRequestError } from "../../../utils/app-errors.js";
 
 const service = new UserService();
 const router = express.Router();
@@ -66,6 +67,56 @@ router.delete("/deleteUser/:userId", async (req, res, next) => {
         next(err); // Pass errors to the error-handling middleware
     }
 });
+
+
+
+router.get("/user-cart/:userId", async (req, res, next) => {
+    try {
+        const { userId } = req.params; // Extract userId from the request parameters
+
+        console.log("UserId", userId); // Log UserId for debugging
+        if (!userId) {
+            throw new BadRequestError("User ID is required");
+        }
+        const userCart = await service.getUserCart(userId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: true,
+            message: "User cart fetched successfully",
+            data: userCart
+        });
+
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
+
+router.post("/add-to-cart/:userId", async (req, res, next) => {
+    try {
+        const { userId } = req.params; // Extract userId from the request parameters
+        const { courseId } = req.body; // Extract courseId from the request body
+
+        console.log("UserId", userId); // Log UserId for debugging
+        console.log("CourseId", courseId); // Log CourseId for debugging
+
+        if (!userId || !courseId) {
+            throw new BadRequestError("User ID and Course ID are required");
+        }
+
+
+        const updatedCart = await service.addToCart(userId, courseId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: true,
+            message: "Course added to cart successfully",
+            data: updatedCart
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
 
 
 

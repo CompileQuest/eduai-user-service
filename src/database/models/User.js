@@ -4,26 +4,25 @@
 import mongoose from "mongoose";
 // Schema for embedded cart items
 const cartItemSchema = new mongoose.Schema({
-
-  item_id: {
+  course_id: {
     type: mongoose.Schema.Types.UUID, // UUID for item ID
     required: true,
     unique: false
   },
-  product_name: {
+  course_name: {
     type: String,
     required: true
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1
   },
   price: {
     type: Number,
     required: true,
     min: 0
-  }
+  },
+  Toumbnail: {
+    type: String,
+    required: true,
+    match: /^https?:\/\/.+$/ // Basic URL validation
+  },
 }, { _id: false }); // Prevents Mongoose from adding its own _id for embedded documents
 
 // Social profiles schema embedded within the user model

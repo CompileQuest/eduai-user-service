@@ -5,11 +5,15 @@ import {
 import { APIError, AppError, BadRequestError, NotFoundError } from "../utils/app-errors.js";
 import bcrypt from "bcrypt";
 import ResponseHelper from "../utils/responseHelper.js";
+import httpClient from "../services/external/httpClient.js";
+import services from "../services/external/services.js"; // Import the services configuration
+
 
 // All Business logic will be here
 class UserService {
     constructor() {
         this.repository = new UserRepository();
+        this.externalService = new httpClient();
     }
 
 
@@ -58,6 +62,69 @@ class UserService {
                 throw error;
             }
             return ResponseHelper.error('Failed to fetch related courses', 500);
+        }
+    }
+
+    async getUserCart(userId) {
+        try {
+            // Check if userId is provided
+            if (!userId) {
+                throw new BadRequestError("User ID is required");
+            }
+
+            // Fetch the user's cart from the repository
+            const cart = await this.repository.getUserCart(userId);
+
+            // Check if the cart is empty
+            if (!cart || cart.length === 0) {
+                throw new NotFoundError("Cart not found", "The requested cart does not exist.");
+            }
+
+            // Return success response with the cart data
+            return cart;
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new APIError("Failed to fetch user cart", error.message);
+        }
+    }
+
+
+    // Method to add a course to the user's cart
+    async addToCart(userId, courseIds) {
+        try {
+            // Ensure courseIds is an array, even if it is a single courseId
+            const courseIdsArray = Array.isArray(courseIds) ? courseIds : [courseIds];
+
+            // Pass the array of courseIds to FormateData
+            const courseIdsPayload = FormateData(courseIdsArray);
+
+            // Fetch the course details from the course service
+            const courseDetails = await this.externalService.callService(
+                services.courseService, // Service name
+                'courseInfo.cart', // Event or endpoint
+                courseIdsPayload // Pass the HttpMessage as the payload
+            );
+
+            console.log("This is the course details:", courseDetails);
+
+            // Call the repository method to add the courses to the user's cart
+            const updatedCart = await this.repository.addToCart(userId, courseIdsArray);
+
+            // Check if the courses were successfully added
+            if (!updatedCart) {
+                throw new NotFoundError("Courses not found", "One or more courses do not exist.");
+            }
+
+            // Return the updated cart data
+            return updatedCart;
+
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new APIError("Failed to add courses to cart", error.message);
         }
     }
 

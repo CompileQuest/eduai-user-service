@@ -14,7 +14,6 @@ export const ValidatePassword = async (enteredPassword, savedPassword, salt) => 
 
 
 
-
 export const FormateData = (data) => {
   if (data) {
     return { data };
