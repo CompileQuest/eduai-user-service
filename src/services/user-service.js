@@ -2,7 +2,7 @@ import UserRepository from "../database/repository/user-repository.js";
 import {
     FormateData,
 } from "../utils/index.js";
-import { APIError, BadRequestError } from "../utils/app-errors.js";
+import { APIError, AppError, BadRequestError, NotFoundError } from "../utils/app-errors.js";
 import bcrypt from "bcrypt";
 import ResponseHelper from "../utils/responseHelper.js";
 
@@ -11,6 +11,11 @@ class UserService {
     constructor() {
         this.repository = new UserRepository();
     }
+
+
+
+
+
 
     //////////////////////////////////////////
     async AddUser(userData) {
@@ -34,6 +39,85 @@ class UserService {
         }
     }
 
+    async getOwnedCourses(UserId) {
+        try {
+            // fetch Owned Courses
+            const OwnedCourses = await this.repository.getOwnedCourses(UserId);
+            console.log("this is owned courses", OwnedCourses);
+
+
+            if (!OwnedCourses || OwnedCourses.length === 0) {
+                return ResponseHelper.error("No owned courses found", 404);
+            }
+
+
+            // Return success response with the transformed courses
+            return ResponseHelper.success('Owned Courses Fetched Successfully ', OwnedCourses);
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            return ResponseHelper.error('Failed to fetch related courses', 500);
+        }
+    }
+
+
+    async deleteUserById(userId) {
+        try {
+            // Check if userId is provided
+            if (!userId) {
+                throw new BadRequestError("User ID is required");
+            }
+
+
+            console.log("block 1 ");
+
+            // Call the repository method to delete the user
+            const deletedUser = await this.repository.deleteUserById(userId);
+
+            console.log("this is the deleted user", deletedUser);
+            // Check if the user was successfully deleted
+            if (!deletedUser) {
+                console.log("block 2 ");
+                throw new NotFoundError("User not found", "The requested user does not exist.");
+            }
+
+            // Return success response
+            return deletedUser;
+        } catch (error) {
+            if (error instanceof AppError) {
+                console.log("hell ohere 3 ");
+                throw error;
+            }
+            console.log("hell ohere 4 ");
+            return ResponseHelper.error("Failed to delete user", 500);
+        }
+    }
+
+    async checkIfUserExistByUserName(username) {
+        try {
+
+            console.log("this is the username ", username)
+            // Check if user exists in the repository
+            const user = await this.repository.checkIfUserExistByUserName(username);
+            console.log("This is the user: ", user);
+
+            if (!user) {
+                // If user is not found, return an error response with a 404 status
+                return ResponseHelper.success('User not found', false);
+            }
+
+            // User exists, return success with the user data (if necessary)
+            return ResponseHelper.success('User found successfully', true);
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+
+            // Return a generic error response in case of an unexpected error
+            return ResponseHelper.error('Failed to check if user exists', 500);
+        }
+    }
 
 
 
@@ -79,21 +163,6 @@ class UserService {
 
     ////delete user/////
 
-    async DeleteUserById(userId) {
-        try {
-            if (!userId) {
-                throw new Error("User ID is required to delete a user");
-            }
-
-            // Call the repository method
-            const deletedUser = await this.repository.DeleteUserById(userId);
-
-            return FormateData(deletedUser); // Return formatted data
-        } catch (err) {
-            console.error("Service Error Deleting User:", err);
-            throw new APIError("User Deletion Error", undefined, err.message, true);
-        }
-    }
 
     /////////////update user //////////////////////////
 

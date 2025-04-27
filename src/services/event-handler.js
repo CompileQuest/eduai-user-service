@@ -1,4 +1,5 @@
 import UserService from "../services/user-service.js";
+import { APIError, AppError, BadRequestError, NotFoundError } from "../utils/app-errors.js"; // Assuming you have these custom error classes
 const userService = new UserService();
 
 const eventHandlers = {
@@ -8,12 +9,42 @@ const eventHandlers = {
     },
     "user.deleted": async (payload) => {
         console.log("Handling user.deleted event...");
-        return await userService.deleteUser(payload.userId);
+
+        try {
+            // Call the service method, no need for additional validation here
+            const deletedUser = await userService.deleteUserById(payload.userId);
+
+            // Return success response
+            return {
+                success: true,
+                message: "User deleted successfully",
+                data: deletedUser
+            };
+        } catch (error) {
+            if (error instanceof AppError) {
+                // Return error response if it's an instance of AppError
+                return {
+                    success: false,
+                    message: error.message,
+                    statusCode: error.statusCode
+                };
+            }
+
+            // Return generic error if it's not an AppError
+            return {
+                success: false,
+                message: "Failed to delete user",
+                statusCode: 500
+            };
+        }
     },
+    "user.exists": async (payload) => {
+        console.log("Handling user.exists event...");
+        return await userService.checkIfUserExistByUserName(payload.data);
+    },
+
     // Add more event handlers as needed
 };
-
-
 
 /**
  * Resolves the appropriate handler for a given event type.
@@ -25,6 +56,10 @@ export const handleEvent = async (eventType, payload) => {
         return await eventHandlers[eventType](payload);
     } else {
         console.warn(`No handler found for event: ${eventType}`);
-        return null;
+        return {
+            success: false,
+            message: "Event handler not found",
+            statusCode: 404
+        };
     }
 };

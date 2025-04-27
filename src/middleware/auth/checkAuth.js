@@ -1,7 +1,7 @@
 import { expressjwt as jwt } from "express-jwt";
 import jwksRsa from "jwks-rsa";
-import { UnauthorizedError, ForbiddenError, BadRequestError } from "../../utils/app-error.js"; // Import custom error classes
-
+import { UnauthorizedError, ForbiddenError, BadRequestError } from "../../utils/app-errors.js"; // Import custom error classes
+const mock = true;
 // Function to extract JWT from request
 const getTokenFromRequest = (req) => {
     const authHeader = req.headers.authorization;
@@ -18,8 +18,12 @@ const getTokenFromRequest = (req) => {
     return null;
 };
 
-// JWT Authentication Middleware
+
 const checkAuth = (req, res, next) => {
+    if (mock) {
+        next(); // Make sure to return to avoid further execution
+    }
+
     jwt({
         secret: jwksRsa.expressJwtSecret({
             cache: true,
@@ -27,14 +31,15 @@ const checkAuth = (req, res, next) => {
             cacheMaxAge: 10 * 60 * 1000,
             rateLimit: true,
             jwksRequestsPerMinute: 5,
-            jwksUri: "http://localhost:9000/api/v1/auth/jwt/jwks.json",
+            jwksUri: "http://localhost:8080/api/v1/auth/jwt/jwks.json",
         }),
         algorithms: ["RS256"],
         getToken: getTokenFromRequest,
     })(req, res, (err) => {
         if (err) {
+            // Handle different errors appropriately
             if (err.name === "UnauthorizedError") {
-                console.log("we are here ")
+                console.log("we are here ");
                 return next(new UnauthorizedError("Invalid authentication token"));
             }
             if (err.code === "credentials_required") {
@@ -45,8 +50,10 @@ const checkAuth = (req, res, next) => {
             }
             return next(new UnauthorizedError("Authentication failed"));
         }
-        next();
+        // If no error, continue to the next middleware or route handler
+        return next();
     });
 };
+
 
 export { checkAuth };

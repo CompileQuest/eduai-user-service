@@ -37,6 +37,41 @@ class UserRepository {
         return userResult;
     }
 
+
+    async checkIfUserExistByUserName(username) {
+
+        const user = await UserModel.findOne({ username: username }).lean();
+        if (!user) {
+            return null; // User not found
+        }
+        return user; // User found     
+    }
+
+
+    async deleteUserById(userId) {
+        const user = await UserModel.findOneAndDelete({ _id: userId }).lean();
+        console.log("i am here ", user);
+        return user;
+    }
+
+
+    async getOwnedCourses(userId) {
+        try {
+            const user = await UserModel.findById(userId)
+                .select('purchased_courses')
+                .lean();
+
+            if (!user) {
+                return []; // Return empty array if no user/courses found
+            }
+
+            return user.purchased_courses.map(item => item.course_id);
+        } catch (error) {
+            throw error; // Let the service layer handle errors
+        }
+    }
+
+
     async GetAllUsers() {
         try {
             console.log("GetAllUsers called");
@@ -76,25 +111,6 @@ class UserRepository {
 
 
     ////delete user/////
-
-    async DeleteUserById(userId) {
-        try {
-            // Ensure userId is trimmed of any extra characters
-            const trimmedUserId = userId.trim();
-            //console.log(trimmedUserId);
-            // Find and delete the user by their UUID
-            const user = await UserModel.findOneAndDelete({ user_id: trimmedUserId });
-            //console.log(user);
-            if (!user) {
-                throw new Error(`User with ID ${userId} not found`);
-            }
-
-            return user; // Return the deleted user data
-        } catch (err) {
-            console.error(err);
-            throw new Error('Error deleting user');
-        }
-    }
 
     ////////update user//////
 

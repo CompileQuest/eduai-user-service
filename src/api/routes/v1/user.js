@@ -1,5 +1,8 @@
 import express from "express"
 import UserService from '../../../services/user-service.js';
+import { checkRole, getCurrentRole, getUserId, checkAuth } from "../../../middleware/auth/authHelper.js";
+import ROLES from "../../../config/Roles.js";
+
 const service = new UserService();
 const router = express.Router();
 
@@ -24,6 +27,50 @@ router.post("/create_user", async (req, res, next) => {
         next(err);
     }
 });
+
+router.post("/user-cart", async (req, res, next) => {
+    try {
+        const userData = req.body;
+        const response = await service.AddUser(userData);
+        return res.status(200).json(response);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get("/user-owned-courses", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
+    try {
+        const UserId = getUserId(req.auth); // Get the UserId from the request
+        console.log("UserId", UserId); // Log UserId for debugging
+        const OwnedCourses = await service.getOwnedCourses(UserId); // Get the owned courses from the service
+        return res.status(200).json(OwnedCourses); // Return the owned courses as the response
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
+router.delete("/deleteUser/:userId", async (req, res, next) => {
+    try {
+        const { userId } = req.params; // Extract userId from the request parameters
+
+        console.log("UserId", userId); // Log UserId for debugging
+        const deletedUser = await service.deleteUserById(userId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: true,
+            message: "User deleted successfully",
+            data: deletedUser
+        });
+
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
+
+
+
 
 // //      all users
 // app.get('/users', async (req, res, next) => {
