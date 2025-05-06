@@ -4,26 +4,11 @@
 import mongoose from "mongoose";
 // Schema for embedded cart items
 const cartItemSchema = new mongoose.Schema({
-  course_id: {
-    type: mongoose.Schema.Types.UUID, // UUID for item ID
-    required: true,
-    unique: false
-  },
-  course_name: {
-    type: String,
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  Toumbnail: {
-    type: String,
-    required: true,
-    match: /^https?:\/\/.+$/ // Basic URL validation
-  },
-}, { _id: false }); // Prevents Mongoose from adding its own _id for embedded documents
+  course_id: { type: mongoose.Schema.Types.UUID, required: true },
+  course_name: { type: String, required: true },
+  price: { type: Number, required: true, min: 0 },
+  Toumbnail: { type: String, required: true, match: /^https?:\/\/.+$/ }
+}, { _id: false });
 
 // Social profiles schema embedded within the user model
 const socialProfilesSchema = new mongoose.Schema({

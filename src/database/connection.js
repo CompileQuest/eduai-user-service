@@ -1,20 +1,18 @@
 import mongoose from 'mongoose';
-import { DB_URL } from '../config/index.js';
+import { MONGODB_URI } from '../config/index.js';
 
-const connectDB = async () => {
+
+
+
+// Todo I need to add a retry mechanism here ( Expenontial Backoff or Circuit Break).
+const DatabaseConnection = async () => {
     try {
-        console.log("this is the db_url ", DB_URL);
-        await mongoose.connect(DB_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        console.log('Db Connected');
+        await mongoose.connect(MONGODB_URI); // ← Clean, modern syntax
+        console.log('✅ Db Connected');
     } catch (error) {
-        console.log('Error ============');
-        console.log(error);
-        console.log("yah here is the error man");
+        console.error('❌ Error connecting to DB:', error);
         process.exit(1);
     }
 };
 
-export default connectDB;
+export default DatabaseConnection;

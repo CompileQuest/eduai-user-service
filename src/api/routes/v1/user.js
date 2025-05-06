@@ -41,14 +41,28 @@ router.post("/user-cart", async (req, res, next) => {
 
 router.get("/user-owned-courses", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
-        const UserId = getUserId(req.auth); // Get the UserId from the request
+        const UserId = getUserId(req.auth, ROLES.STUDENT); // Get the UserId from the request
         console.log("UserId", UserId); // Log UserId for debugging
         const OwnedCourses = await service.getOwnedCourses(UserId); // Get the owned courses from the service
-        return res.status(200).json(OwnedCourses); // Return the owned courses as the response
+        return res.status(200).json({ success: true, message: "fetched the user courses successfully", data: OwnedCourses }); // Return the owned courses as the response
     } catch (err) {
         next(err); // Pass errors to the error-handling middleware
     }
 });
+
+router.get("/owns-course/:courseId", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
+    try {
+        console.log("this is the roles ", ROLES.STUDENT)
+        const userId = getUserId(req.auth, ROLES.STUDENT); // Get the UserId from the request
+        console.log("UserId", userId); // Log UserId for debugging
+        const { courseId } = req.params;
+        const doesUserOwnsThisCousre = await service.doesUserOwnsThisCousre(userId, courseId); // Get the owned courses from the service
+        return res.status(200).json({ success: true, message: "Successfully Fetched Response", data: doesUserOwnsThisCousre }); // Return the owned courses as the response
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
 
 
 router.delete("/deleteUser/:userId", async (req, res, next) => {
@@ -92,10 +106,11 @@ router.get("/user-cart/:userId", async (req, res, next) => {
 
 
 
-router.post("/add-to-cart/:userId", async (req, res, next) => {
+router.post("/add-to-cart/:courseId", async (req, res, next) => {
     try {
-        const { userId } = req.params; // Extract userId from the request parameters
-        const { courseId } = req.body; // Extract courseId from the request body
+
+        const userId = getUserId(req.auth, ROLES.STUDENT);
+        const { courseId } = req.params; // Extract courseId from the request body
 
         console.log("UserId", userId); // Log UserId for debugging
         console.log("CourseId", courseId); // Log CourseId for debugging
@@ -105,11 +120,38 @@ router.post("/add-to-cart/:userId", async (req, res, next) => {
         }
 
 
-        const updatedCart = await service.addToCart(userId, courseId); // Get the owned courses from the service
+        const result = await service.addToCart(userId, courseId); // Get the owned courses from the service
         return res.status(200).json({
-            success: true,
-            message: "Course added to cart successfully",
-            data: updatedCart
+            success: result.success,
+            message: result.message,
+            data: result.data
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
+router.post("/purchaseCourse/:courseId", async (req, res, next) => {
+    try {
+
+        const userId = getUserId(req.auth, ROLES.STUDENT);
+        const { courseId } = req.params; // Extract courseId from the request body
+
+        console.log("UserId", userId); // Log UserId for debugging
+        console.log("CourseId", courseId); // Log CourseId for debugging
+
+        if (!userId || !courseId) {
+            throw new BadRequestError("User ID and Course ID are required");
+        }
+
+
+        const result = await service.purchaseCourse(userId, courseId); // Get the owned courses from the service
+
+        return res.status(200).json({
+            success: result.success,
+            message: result.message,
+            data: result.data
         });
     } catch (err) {
         next(err); // Pass errors to the error-handling middleware
@@ -118,283 +160,5 @@ router.post("/add-to-cart/:userId", async (req, res, next) => {
 
 
 
-
-
-
-
-
-// //      all users
-// app.get('/users', async (req, res, next) => {
-//     try {
-//         const users = await service.GetAllUsers();
-//         res.status(200).json(users); // Send users as a JSON response
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-// ///////////get user by id////////
-
-// app.get('/users/:id', async (req, res, next) => {
-//     try {
-//         const { id } = req.params;
-
-//         const user = await service.GetUser(id.trim());
-
-//         return res.status(200).json({
-//             message: 'User retrieved successfully',
-//             data: user,
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-
-// ////delete user/////
-// app.delete('/users/:id', async (req, res, next) => {
-//     try {
-//         const { id } = req.params;
-//         const cleanedId = id.trim();  // Clean the ID to avoid issues like newlines
-
-//         // Call the service to delete the user by their UUID
-//         const deletedUser = await service.DeleteUserById(cleanedId);
-
-//         return res.status(200).json({
-//             message: 'User deleted successfully',
-//             data: deletedUser,
-//         });
-//     } catch (err) {
-//         next(err); // Handle any errors
-//     }
-// });
-
-
-// ///////update user/////
-
-
-// app.put('/users/:id', async (req, res, next) => {
-//     try {
-//         const { id } = req.params;
-//         const updates = req.body;
-
-//         if (!updates || Object.keys(updates).length === 0) {
-//             return res.status(400).json({ message: 'No updates provided' });
-//         }
-
-//         const updatedUser = await service.UpdateUser(id, updates);
-
-//         return res.status(200).json({
-//             message: 'User updated successfully',
-//             data: updatedUser,
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-// //update specific fields
-// app.put('/users/:id/details', async (req, res, next) => {
-//     try {
-//         const { id } = req.params;
-//         const {
-//             first_name,
-//             last_name,
-//             phone,
-//             birthday,
-//             address_line_1,
-//             address_line_2,
-//             state,
-//             country
-//         } = req.body;
-
-//         // Ensure at least one field is being updated
-//         if (
-//             !first_name && !last_name && !phone && !birthday &&
-//             !address_line_1 && !address_line_2 && !state && !country
-//         ) {
-//             return res.status(400).json({ message: 'No valid fields provided for update' });
-//         }
-
-//         // Prepare the updates object dynamically
-//         const updates = {};
-//         if (first_name) updates.first_name = first_name;
-//         if (last_name) updates.last_name = last_name;
-//         if (phone) updates.phone = phone;
-//         if (birthday) updates.birthday = new Date(birthday); // Convert birthday to Date
-//         if (address_line_1) updates.address_line_1 = address_line_1;
-//         if (address_line_2) updates.address_line_2 = address_line_2;
-//         if (state) updates.state = state;
-//         if (country) updates.country = country;
-
-//         // Call service to update user details
-//         const updatedUser = await service.UpdateUser(id, updates);
-
-//         return res.status(200).json({
-//             message: 'User details updated successfully',
-//             data: updatedUser,
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-// ///////notification settings/////
-
-// ////coarse-grained access control////
-// app.route('/users/:id/notification-settings')
-//     .get(async (req, res, next) => {
-//         try {
-//             const { id } = req.params;
-//             const notificationSettings = await service.GetNotificationSettings(id.trim());
-//             res.status(200).json(notificationSettings);
-//         } catch (err) {
-//             next(err);
-//         }
-//     })
-//     .put(async (req, res, next) => {
-//         try {
-//             const { id } = req.params;
-//             const { body: notificationSettings } = req;
-
-//             const updatedSettings = await service.UpdateNotificationSettings(id.trim(), notificationSettings);
-
-//             return res.status(200).json({
-//                 message: 'Notification settings updated successfully',
-//                 data: updatedSettings,
-//             });
-//         } catch (err) {
-//             next(err);
-//         }
-//     });
-// //////fine-grained access control/////
-// app.get('/users/:id/notification-settings/:field', async (req, res, next) => {
-//     try {
-//         const { id, field } = req.params;
-
-//         const notificationSettings = await service.GetNotificationSettings(id.trim());
-
-//         if (!notificationSettings.hasOwnProperty(field)) {
-//             return res.status(404).json({ message: `Field "${field}" not found in notification settings` });
-//         }
-
-//         res.status(200).json({
-//             field: field,
-//             value: notificationSettings[field],
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-// app.put('/users/:id/notification-settings/:field', async (req, res, next) => {
-//     try {
-//         const { id, field } = req.params;
-//         const { value } = req.body;
-
-//         const notificationSettings = await service.GetNotificationSettings(id.trim());
-
-//         if (!notificationSettings.hasOwnProperty(field)) {
-//             return res.status(404).json({ message: `Field "${field}" not found in notification settings` });
-//         }
-
-//         notificationSettings[field] = value;
-
-//         const updatedSettings = await service.UpdateNotificationSettings(id.trim(), notificationSettings);
-
-//         res.status(200).json({
-//             message: `Notification setting "${field}" updated successfully`,
-//             data: updatedSettings[field],
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-// /////////profile pic/////
-
-// app.put('/users/:id/profile-image', async (req, res, next) => {
-//     try {
-//         const { id } = req.params;
-//         const { profile_picture_url } = req.body;
-
-//         if (!profile_picture_url) {
-//             return res.status(400).json({ message: 'Profile image URL is required' });
-//         }
-
-//         const updatedProfileImage = await service.UpdateProfileImage(id.trim(), profile_picture_url);
-
-//         return res.status(200).json({
-//             message: 'Profile image updated successfully',
-//             data: updatedProfileImage,
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-
-
-// //********************************************************************************************************************    
-// app.post("/login", async (req, res, next) => {
-//     try {
-//         const { email, password } = req.body;
-
-//         const { data } = await service.SignIn({ email, password });
-
-//         return res.json(data);
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-
-// app.post("/address", UserAuth, async (req, res, next) => {
-//     try {
-//         const { _id } = req.user;
-
-//         const { street, postalCode, city, country } = req.body;
-
-//         const { data } = await service.AddNewAddress(_id, {
-//             street,
-//             postalCode,
-//             city,
-//             country,
-//         });
-
-//         return res.json(data);
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-// app.get("/profile", UserAuth, async (req, res, next) => {
-//     try {
-//         const { _id } = req.user;
-//         const { data } = await service.GetProfile({ _id });
-//         return res.json(data);
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-
-// app.get("/shoping-details", UserAuth, async (req, res, next) => {
-//     try {
-//         const { _id } = req.user;
-//         const { data } = await service.GetShopingDetails(_id);
-
-//         return res.json(data);
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-// app.get("/wishlist", UserAuth, async (req, res, next) => {
-//     try {
-//         const { _id } = req.user;
-//         const { data } = await service.GetWishList(_id);
-//         return res.status(200).json(data);
-//     } catch (err) {
-//         next(err);
-//     }
-// });
 
 export default router;

@@ -1,9 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import HandleErrors from './utils/error-handler.js';
-// import appEvent from './api/routes/app-events.js';
-import appEvent from './api/routes/v1/app-events.js';
+
 import apiRoutes from './api/routes/index.js';
+
+
+import supertokens from "supertokens-node";
+
+import { middleware, errorHandler } from "supertokens-node/framework/express";
+import { SuperTokensConfig } from "./config/superTokenConfig.js"
+
+import path from "path";
+import { fileURLToPath } from "url";
+import { WEBSITE_DOMAIN } from "./config/index.js";
 
 export default async (app) => {
     app.use(express.json({ limit: '1mb' }));
@@ -15,6 +24,18 @@ export default async (app) => {
     //     console.log(req);
     //     next();
     // });
+    supertokens.init(SuperTokensConfig);
+
+    app.use(
+        cors({
+            origin: WEBSITE_DOMAIN,
+            allowedHeaders: ["content-type", ...supertokens.getAllCORSHeaders()],
+            methods: ["GET", "PUT", "POST", "DELETE"],
+            credentials: true,
+        })
+    );
+
+
 
     // Listen to Events
     // API routes
@@ -22,6 +43,8 @@ export default async (app) => {
     // app.use(apiRoutes);  // All versioned routes are under /api
 
     // Initialize RabbitMQ (if needed)
+    app.use(middleware());
+    app.use(errorHandler());
 
     // Error handling
     app.use(HandleErrors);

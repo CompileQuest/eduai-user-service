@@ -2,7 +2,7 @@ import UserRepository from "../database/repository/user-repository.js";
 import {
     FormateData,
 } from "../utils/index.js";
-import { APIError, AppError, BadRequestError, NotFoundError } from "../utils/app-errors.js";
+import { APIError, AppError, BadRequestError, InternalServerError, NotFoundError } from "../utils/app-errors.js";
 import bcrypt from "bcrypt";
 import ResponseHelper from "../utils/responseHelper.js";
 import httpClient from "../services/external/httpClient.js";
@@ -49,21 +49,39 @@ class UserService {
             const OwnedCourses = await this.repository.getOwnedCourses(UserId);
             console.log("this is owned courses", OwnedCourses);
 
-
-            if (!OwnedCourses || OwnedCourses.length === 0) {
-                return ResponseHelper.error("No owned courses found", 404);
-            }
-
-
-            // Return success response with the transformed courses
-            return ResponseHelper.success('Owned Courses Fetched Successfully ', OwnedCourses);
+            // here if there is no course i will just return an empty array which is better :) 
+            return OwnedCourses || [];
         } catch (error) {
             if (error instanceof AppError) {
                 throw error;
             }
-            return ResponseHelper.error('Failed to fetch related courses', 500);
+            throw new InternalServerError('Failed to fetch related courses', error.message);
         }
     }
+
+
+
+
+    async doesUserOwnsThisCousre(userId, courseId) {
+        try {
+            // fetch Owned Courses
+            const ownedCourses = await this.repository.getOwnedCourses(userId);
+
+            // array of courses here now i need to check if the courseId is in there or not !!
+            console.log("this is owned courses", ownedCourses);
+            const ownsCourse = ownedCourses.some(id => id.toString() === courseId.toString());
+
+            // here if there is no course i will just return an empty array which is better :) 
+            return ownsCourse || false;
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new InternalServerError('Failed to fetch related courses', error.message);
+        }
+    }
+
+
 
     async getUserCart(userId) {
         try {
@@ -91,42 +109,92 @@ class UserService {
     }
 
 
+
     // Method to add a course to the user's cart
     async addToCart(userId, courseIds) {
         try {
-            // Ensure courseIds is an array, even if it is a single courseId
             const courseIdsArray = Array.isArray(courseIds) ? courseIds : [courseIds];
 
-            // Pass the array of courseIds to FormateData
             const courseIdsPayload = FormateData(courseIdsArray);
 
-            // Fetch the course details from the course service
-            const courseDetails = await this.externalService.callService(
-                services.courseService, // Service name
-                'courseInfo.cart', // Event or endpoint
-                courseIdsPayload // Pass the HttpMessage as the payload
+            const courseDetailsResponse = await this.externalService.callService(
+                services.courseService,
+                'course.cart.info',
+                courseIdsPayload
             );
 
-            console.log("This is the course details:", courseDetails);
+            const courseDetails = courseDetailsResponse;
 
-            // Call the repository method to add the courses to the user's cart
-            const updatedCart = await this.repository.addToCart(userId, courseIdsArray);
-
-            // Check if the courses were successfully added
-            if (!updatedCart) {
-                throw new NotFoundError("Courses not found", "One or more courses do not exist.");
+            if (!Array.isArray(courseDetails) || courseDetails.length === 0) {
+                throw new NotFoundError("No course details found", "Make sure the course IDs are valid.");
             }
 
-            // Return the updated cart data
-            return updatedCart;
+            const user = await this.repository.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found", `No user with ID ${userId}`);
+            }
+
+            const existingCourseIds = user.cart.map(item => item.course_id);
+
+            // Filter out duplicates
+            const newCourses = courseDetails
+                .filter(course => !existingCourseIds.includes(course.id))
+                .map(course => ({
+                    course_id: course.id,
+                    course_name: course.title,
+                    price: course.price,
+                    Toumbnail: course.thumbnailUrl
+                }));
+
+            if (newCourses.length === 0) {
+                return {
+                    success: true,
+                    message: "No new courses to add. All courses are already in cart.",
+                    data: user.cart
+                };
+            }
+
+            const updatedCart = await this.repository.addCartItems(userId, newCourses);
+
+            return {
+                success: true,
+                message: "Courses added to cart successfully",
+                data: updatedCart
+            };
 
         } catch (error) {
-            if (error instanceof AppError) {
-                throw error;
-            }
+            if (error instanceof AppError) throw error;
             throw new APIError("Failed to add courses to cart", error.message);
         }
     }
+
+
+
+    async purchaseCourse(userId, courseId) {
+        try {
+            const user = await this.repository.findById(userId);
+
+            if (!user) {
+                throw new NotFoundError("User not found", `No user with ID ${userId}`);
+            }
+
+
+            const purchaseCourse = await this.repository.purchaseCourse(userId, courseId);
+
+
+            return {
+                success: true,
+                message: "Courses Was successfully Purchased",
+                data: purchaseCourse
+            };
+
+
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new APIError("Failed to add courses to cart", error.message);
+        }
+    }
+
 
 
     async deleteUserById(userId) {

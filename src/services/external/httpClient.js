@@ -23,7 +23,7 @@ class HttpClient {
                 headers: { 'Content-Type': 'application/json' },
             });
             console.log("Response from service:", response.data);
-            return response.data;
+            return response.data.data;
         } catch (error) {
             if (error.response) {
                 console.log("here am hooooola")

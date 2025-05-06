@@ -1,8 +1,4 @@
-import { expressjwt as jwt } from "express-jwt";
-import jwksRsa from "jwks-rsa";
-import { UnauthorizedError, ForbiddenError, BadRequestError } from "../../utils/app-errors.js"; // Import custom error classes
-
-
+import { ForbiddenError, UnauthorizedError } from '../../utils/app-errors.js';
 const mock = true;
 const checkRole = (requiredRoles = []) => {
     return (req, res, next) => {
@@ -47,7 +43,9 @@ const getTokenFromRequest = (req) => {
 
 const checkAuth = (req, res, next) => {
     if (mock) {
+        console.log("Mock authentication enabled");
         return next(); // Make sure to return to avoid further execution
+        console.log("Mock authentication enabled");
     }
 
     jwt({
@@ -82,10 +80,19 @@ const checkAuth = (req, res, next) => {
 };
 
 
-const getUserId = (auth) => {
-    if (mock) {
-        return 'asdfa2342fasrq23fwe234fasd';
+
+const getUserId = (auth, Role) => {
+    console.log("this is the auth ", auth);
+    console.log("this is the mock ", mock);
+    console.log("this is the role ", Role);
+    if (mock && Role === 'STUDENT') {
+        return 'c1243e05-49f2-4931-9d73-f77a049a5935';
     }
+
+    if (mock && Role === 'INSTRUCTOR') {
+        return 'c1243e05-49f2-4931-9d73-f77a049a5935';
+    }
+
     if (!auth || !auth.sub) {
         console.warn("Missing user ID in authentication data");
         return null;
@@ -107,4 +114,4 @@ const getCurrentRole = (auth) => {
     return auth.role;
 }
 
-export { checkRole, getUserId, getCurrentRole, checkAuth };
+export { checkRole, getUserId, getCurrentRole, checkAuth, getTokenFromRequest };

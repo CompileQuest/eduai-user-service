@@ -99,29 +99,38 @@ class UserRepository {
 
 
 
-    async addToCart(userId, courseId) {
-        // Find the user cart by userId
-        const userCart = await this.model.findOne({ userId });
-
-        if (!userCart) {
-            // If the user doesn't have a cart, create a new cart (this can be customized)
-            const newCart = await this.model.create({ userId, courses: [courseId] });
-            return newCart;
-        }
-
-        // Check if the course is already in the cart
-        if (userCart.courses.includes(courseId)) {
-            return userCart; // No need to add it again
-        }
-
-        // Add the course to the user's cart
-        userCart.courses.push(courseId);
-
-        // Save the updated cart to the database
-        await userCart.save();
-
-        return userCart; // Return the updated cart
+    async findById(userId) {
+        return await this.userModel.findById(userId);
     }
+
+    async addCartItems(userId, cartItems) {
+        const user = await this.userModel.findById(userId);
+        if (!user) return null;
+
+        user.cart.push(...cartItems);
+        await user.save();
+
+        return user.cart;
+    }
+
+
+
+
+
+    async purchaseCourse(userId, courseId) {
+        const user = await this.userModel.findById(userId);
+        if (!user) return null;
+        user.purchased_courses.push({ course_id: courseId });
+        await user.save();
+        return user.purchased_courses;
+    }
+
+
+
+
+
+
+
 
 
 
