@@ -7,10 +7,11 @@ import UserRoles from "supertokens-node/recipe/userroles";
 import { deleteUser } from "supertokens-node";
 import ResponseHelper from "../utils/responseHelper.js";
 import supertokens from "supertokens-node";
-
+import UserService from "./user-service.js";
 class AuthService {
     constructor() {
         this.service = new HttpClient(); // Initialize HttpClient
+        this.userService = new UserService();
     }
 
     /**
@@ -20,13 +21,10 @@ class AuthService {
      */
     async createUserInUserService(payload) {
         try {
-            // Step 2: Call the user service to create a user
-            const response = await this.service.callService(
-                services.userService, // Service name
-                EVENTS.USER_SERVICE.USER_CREATED, // Event or endpoint
-                payload // Pass the HttpMessage as the payload
-            );
-            return response; // Return the response from the user service
+
+            const userCreated = await this.userService.AddUser(payload);
+
+            return userCreated; // Return the response from the user service
         } catch (error) {
             if (error instanceof AppError) {
                 // Re-throw custom errors (e.g., APIError, BadRequestError)
@@ -44,12 +42,9 @@ class AuthService {
 
     async userExitsInUserService(payload) {
         try {
-            // Step 2: Call the user service to create a user
-            const usernameExit = await this.service.callService(
-                services.userService, // Service name
-                'user.exists', // Event or endpoint
-                payload // Pass the HttpMessage as the payload
-            );
+
+            const usernameExit = await this.userService.checkIfUserExistByUserName(payload.data);
+            console.log("this is the answer ", usernameExit);
 
             if (usernameExit.data) {
                 console.error("Username already exists");

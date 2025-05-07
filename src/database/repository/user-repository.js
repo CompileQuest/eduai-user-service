@@ -120,8 +120,14 @@ class UserRepository {
     async purchaseCourse(userId, courseId) {
         const user = await this.userModel.findById(userId);
         if (!user) return null;
-        user.purchased_courses.push({ course_id: courseId });
+
+        if (user.purchased_courses.includes(courseId)) {
+            return user.purchased_courses; // Don't add duplicate
+        }
+
+        user.purchased_courses.push(courseId);
         await user.save();
+
         return user.purchased_courses;
     }
 

@@ -84,9 +84,9 @@ router.delete("/deleteUser/:userId", async (req, res, next) => {
 
 
 
-router.get("/user-cart/:userId", async (req, res, next) => {
+router.get("/user-cart/", async (req, res, next) => {
     try {
-        const { userId } = req.params; // Extract userId from the request parameters
+        const userId = "c1243e05-49f2-4931-9d73-f77a049a5935" // Extract userId from the request parameters
 
         console.log("UserId", userId); // Log UserId for debugging
         if (!userId) {
@@ -108,7 +108,6 @@ router.get("/user-cart/:userId", async (req, res, next) => {
 
 router.post("/add-to-cart/:courseId", async (req, res, next) => {
     try {
-
         const userId = getUserId(req.auth, ROLES.STUDENT);
         const { courseId } = req.params; // Extract courseId from the request body
 
@@ -130,6 +129,8 @@ router.post("/add-to-cart/:courseId", async (req, res, next) => {
         next(err); // Pass errors to the error-handling middleware
     }
 });
+
+
 
 
 router.post("/purchaseCourse/:courseId", async (req, res, next) => {

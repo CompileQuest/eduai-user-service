@@ -4,7 +4,6 @@ import {
 import AuthService from "../../services/auth-service.js";
 import HttpClient from "../../services/external/httpClient.js";
 import { FormateData } from "../../utils/index.js";
-import { AppError } from "../../utils/app-errors.js";
 const authService = new AuthService();
 const httpClient = new HttpClient();
 export const EmailAndPasswordSignUpFlow = async (originalImplementation, input) => {

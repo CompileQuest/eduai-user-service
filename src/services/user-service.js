@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import ResponseHelper from "../utils/responseHelper.js";
 import httpClient from "../services/external/httpClient.js";
 import services from "../services/external/services.js"; // Import the services configuration
+import { validate as uuidValidate } from "uuid";
 
 
 // All Business logic will be here
@@ -172,26 +173,26 @@ class UserService {
 
     async purchaseCourse(userId, courseId) {
         try {
-            const user = await this.repository.findById(userId);
+            if (!uuidValidate(courseId)) {
+                throw new ValidationError("Invalid Course ID", "Course ID must be a valid UUID");
+            }
 
+            const user = await this.repository.findById(userId);
             if (!user) {
                 throw new NotFoundError("User not found", `No user with ID ${userId}`);
             }
 
-
-            const purchaseCourse = await this.repository.purchaseCourse(userId, courseId);
-
+            const updatedPurchases = await this.repository.purchaseCourse(userId, courseId);
 
             return {
                 success: true,
-                message: "Courses Was successfully Purchased",
-                data: purchaseCourse
+                message: "Course was successfully purchased",
+                data: updatedPurchases
             };
-
 
         } catch (error) {
             if (error instanceof AppError) throw error;
-            throw new APIError("Failed to add courses to cart", error.message);
+            throw new APIError("Failed to add course to purchases", error.message);
         }
     }
 
@@ -243,7 +244,7 @@ class UserService {
             }
 
             // User exists, return success with the user data (if necessary)
-            return ResponseHelper.success('User found successfully', true);
+            return user
         } catch (error) {
             if (error instanceof AppError) {
                 throw error;
@@ -281,15 +282,17 @@ class UserService {
     }
     ///////////get user by id////////////////////
 
-    async GetUser(userId) {
+    async findUserById(userId) {
         try {
             if (!userId) {
                 throw new Error("User ID is required to retrieve user");
             }
 
-            const user = await this.repository.GetUserById(userId);
-
-            return FormateData(user);
+            const user = await this.repository.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
+            return user;
         } catch (err) {
             console.error("Service Error Fetching User:", err);
             throw new APIError("User Retrieval Error", undefined, err.message, true);

@@ -161,14 +161,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, // Reference to the wishlist collection//////////////////////////
     ref: 'CourseWishlist'
   },
-  purchased_courses: [
-    {
-      course_id: {
-        type: mongoose.Schema.Types.UUID,
-        required: true
-      }
-    }
-  ],
+  purchased_courses: [{
+    type: mongoose.Schema.Types.UUID,
+    required: true
+  }],
   cart: [cartItemSchema],
   security_status: {
     type: mongoose.Schema.Types.UUID
@@ -178,6 +174,16 @@ const userSchema = new mongoose.Schema({
     default: {}
   },
 });
+
+
+
+
+
+
+
+
+
+
 
 // Create a model from the schema
 const User = mongoose.model('User', userSchema);
