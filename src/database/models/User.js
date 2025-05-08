@@ -7,7 +7,7 @@ const cartItemSchema = new mongoose.Schema({
   course_id: { type: mongoose.Schema.Types.UUID, required: true },
   course_name: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
-  Toumbnail: { type: String, required: true, match: /^https?:\/\/.+$/ }
+  thumbnail: { type: String, required: true, match: /^https?:\/\/.+$/ }
 }, { _id: false });
 
 // Social profiles schema embedded within the user model

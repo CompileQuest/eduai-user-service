@@ -29,15 +29,6 @@ router.post("/create_user", async (req, res, next) => {
     }
 });
 
-router.post("/user-cart", async (req, res, next) => {
-    try {
-        const userData = req.body;
-        const response = await service.AddUser(userData);
-        return res.status(200).json(response);
-    } catch (err) {
-        next(err);
-    }
-});
 
 router.get("/user-owned-courses", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
@@ -52,6 +43,7 @@ router.get("/user-owned-courses", checkAuth, checkRole([ROLES.STUDENT]), async (
 
 router.get("/owns-course/:courseId", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
+
         console.log("this is the roles ", ROLES.STUDENT)
         const userId = getUserId(req.auth, ROLES.STUDENT); // Get the UserId from the request
         console.log("UserId", userId); // Log UserId for debugging
@@ -130,6 +122,30 @@ router.post("/add-to-cart/:courseId", async (req, res, next) => {
     }
 });
 
+
+router.delete("/delete-from-cart/:courseId", async (req, res, next) => {
+    try {
+        const userId = getUserId(req.auth, ROLES.STUDENT);
+        const { courseId } = req.params; // Extract courseId from the request body
+
+        console.log("UserId", userId); // Log UserId for debugging
+        console.log("CourseId", courseId); // Log CourseId for debugging
+
+        if (!userId || !courseId) {
+            throw new BadRequestError("User ID and Course ID are required");
+        }
+
+
+        const result = await service.deleteFromCart(userId, courseId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: result.success,
+            message: result.message,
+            data: result.data
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
 
 
 

@@ -64,8 +64,9 @@ class UserRepository {
             if (!user) {
                 return []; // Return empty array if no user/courses found
             }
+            console.log("this is the user", user);
 
-            return user.purchased_courses.map(item => item.course_id);
+            return user.purchased_courses.map(item => item.toString());
         } catch (error) {
             throw error; // Let the service layer handle errors
         }
@@ -466,6 +467,21 @@ class UserRepository {
             );
         }
     }
+
+
+
+
+
+    async removeCartItems(userId, courseIdsToRemove) {
+        const user = await this.userModel.findById(userId);
+        if (!user) return null;
+
+        user.cart = user.cart.filter(item => !courseIdsToRemove.includes(item.course_id));
+        await user.save();
+
+        return user.cart;
+    }
+
 }
 
 export default UserRepository;

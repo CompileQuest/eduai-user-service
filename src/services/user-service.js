@@ -65,8 +65,12 @@ class UserService {
 
     async doesUserOwnsThisCousre(userId, courseId) {
         try {
+
+            console.log("this si the user id ", userId);
+            console.log("this si the course id ", courseId);
             // fetch Owned Courses
             const ownedCourses = await this.repository.getOwnedCourses(userId);
+
 
             // array of courses here now i need to check if the courseId is in there or not !!
             console.log("this is owned courses", ownedCourses);
@@ -144,7 +148,7 @@ class UserService {
                     course_id: course.id,
                     course_name: course.title,
                     price: course.price,
-                    Toumbnail: course.thumbnailUrl
+                    thumbnail: course.thumbnailUrl
                 }));
 
             if (newCourses.length === 0) {
@@ -166,6 +170,42 @@ class UserService {
         } catch (error) {
             if (error instanceof AppError) throw error;
             throw new APIError("Failed to add courses to cart", error.message);
+        }
+    }
+
+
+    // Method to remove courses from the user's cart
+    async deleteFromCart(userId, courseIds) {
+        try {
+            const courseIdsArray = Array.isArray(courseIds) ? courseIds : [courseIds];
+
+            const user = await this.repository.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found", `No user with ID ${userId}`);
+            }
+
+            const existingCourseIds = user.cart.map(item => item.course_id);
+            const validCourseIds = courseIdsArray.filter(id => existingCourseIds.includes(id));
+
+            if (validCourseIds.length === 0) {
+                return {
+                    success: true,
+                    message: "No matching courses in cart to remove.",
+                    data: user.cart
+                };
+            }
+
+            const updatedCart = await this.repository.removeCartItems(userId, validCourseIds);
+
+            return {
+                success: true,
+                message: "Courses removed from cart successfully",
+                data: updatedCart
+            };
+
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new APIError("Failed to remove courses from cart", error.message);
         }
     }
 
