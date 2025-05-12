@@ -4,6 +4,7 @@ import HandleErrors from './utils/error-handler.js';
 
 import apiRoutes from './api/routes/index.js';
 
+import cookieParser from 'cookie-parser';
 
 import supertokens from "supertokens-node";
 
@@ -19,6 +20,7 @@ export default async (app) => {
     app.use(express.urlencoded({ extended: true, limit: '1mb' }));
     // app.use(cors());
     app.use(express.static(new URL('./public', import.meta.url).pathname));
+    app.use(cookieParser());
 
     // app.use((req, res, next) => {
     //     console.log(req);

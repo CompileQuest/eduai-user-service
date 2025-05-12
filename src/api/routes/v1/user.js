@@ -1,6 +1,6 @@
 import express from "express"
 import UserService from '../../../services/user-service.js';
-import { checkRole, getCurrentRole, getUserId, checkAuth } from "../../../middleware/auth/authHelper.js";
+import { checkRole, getCurrentRole, getUserId, checkAuth, getTokenFromRequest } from "../../../middleware/auth/authHelper.js";
 import ROLES from "../../../config/Roles.js";
 import { BadRequestError } from "../../../utils/app-errors.js";
 
@@ -76,10 +76,9 @@ router.delete("/deleteUser/:userId", async (req, res, next) => {
 
 
 
-router.get("/user-cart/", async (req, res, next) => {
+router.get("/user-cart/", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
-        const userId = "c1243e05-49f2-4931-9d73-f77a049a5935" // Extract userId from the request parameters
-
+        const userId = getUserId(req.auth);
         console.log("UserId", userId); // Log UserId for debugging
         if (!userId) {
             throw new BadRequestError("User ID is required");
@@ -98,12 +97,15 @@ router.get("/user-cart/", async (req, res, next) => {
 
 
 
-router.post("/add-to-cart/:courseId", async (req, res, next) => {
+router.post("/add-to-cart/:courseId", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
-        const userId = getUserId(req.auth, ROLES.STUDENT);
+
+        const userId = getUserId(req.auth);
+        const userRole = getCurrentRole(req.auth);
         const { courseId } = req.params; // Extract courseId from the request body
 
         console.log("UserId", userId); // Log UserId for debugging
+        console.log("this is the user Role ", userRole)
         console.log("CourseId", courseId); // Log CourseId for debugging
 
         if (!userId || !courseId) {
@@ -123,20 +125,20 @@ router.post("/add-to-cart/:courseId", async (req, res, next) => {
 });
 
 
-router.delete("/delete-from-cart/:courseId", async (req, res, next) => {
+router.delete("/delete-cart-items/", async (req, res, next) => {
     try {
         const userId = getUserId(req.auth, ROLES.STUDENT);
-        const { courseId } = req.params; // Extract courseId from the request body
+        const { courseIds } = req.body;
 
         console.log("UserId", userId); // Log UserId for debugging
-        console.log("CourseId", courseId); // Log CourseId for debugging
+        console.log("CourseIds", courseIds); // Log CourseId for debugging
 
-        if (!userId || !courseId) {
+        if (!userId || !courseIds) {
             throw new BadRequestError("User ID and Course ID are required");
         }
 
 
-        const result = await service.deleteFromCart(userId, courseId); // Get the owned courses from the service
+        const result = await service.deleteFromCart(userId, courseIds); // Get the owned courses from the service
         return res.status(200).json({
             success: result.success,
             message: result.message,
@@ -146,6 +148,22 @@ router.delete("/delete-from-cart/:courseId", async (req, res, next) => {
         next(err); // Pass errors to the error-handling middleware
     }
 });
+
+
+
+router.delete("/delete-all-cart-items", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
+    try {
+        const userId = getUserId(req.auth);
+        const result = await service.deleteAllCartItems(userId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: result.success,
+            message: result.message,
+            data: result.data
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+})
 
 
 

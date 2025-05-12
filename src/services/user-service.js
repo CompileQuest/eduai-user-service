@@ -98,10 +98,6 @@ class UserService {
             // Fetch the user's cart from the repository
             const cart = await this.repository.getUserCart(userId);
 
-            // Check if the cart is empty
-            if (!cart || cart.length === 0) {
-                throw new NotFoundError("Cart not found", "The requested cart does not exist.");
-            }
 
             // Return success response with the cart data
             return cart;
@@ -172,6 +168,33 @@ class UserService {
             throw new APIError("Failed to add courses to cart", error.message);
         }
     }
+
+
+
+    // Method to remove courses from the user's cart
+    async deleteAllCartItems(userId) {
+        try {
+
+            const user = await this.repository.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found", `No user with ID ${userId}`);
+            }
+
+            const updatedCart = await this.repository.deleteAllCartItems(userId);
+
+            return {
+                success: true,
+                message: "Courses removed from cart successfully",
+                data: updatedCart
+            };
+
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new APIError("Failed to remove courses from cart", error.message);
+        }
+    }
+
+
 
 
     // Method to remove courses from the user's cart

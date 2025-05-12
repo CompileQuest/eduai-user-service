@@ -6,9 +6,7 @@ import express from 'express';
 import { PORT } from './config/index.js';
 import DatabaseConnection from './database/connection.js';
 import expressApp from './express-app.js';
-
-
-//import RabbitMQClient from './infrastructure/messageQueue/fireAndForget/RabbitMQClient.js';
+import RabbitMQClient from './infrastructure/messageQueue/fireAndForget/RabbitMQClient.js';
 
 
 const StartServer = async () => {

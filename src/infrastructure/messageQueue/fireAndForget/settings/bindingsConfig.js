@@ -5,7 +5,7 @@ const bindingsConfig = {
         exchange: "user_exchange",
         queue: "user_queue",
         bindings: [
-            { exchange: "course_exchange", routingKeys: [RoutingKeys.COURSE_CREATED] },
+            { exchange: "webhook_exchange", routingKeys: [RoutingKeys.PAYMENT_SESSION_COMPLETED] },
         ],
     }
 };

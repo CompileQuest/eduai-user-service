@@ -55,6 +55,7 @@ class UserRepository {
     }
 
 
+
     async getOwnedCourses(userId) {
         try {
             const user = await UserModel.findById(userId)
@@ -115,6 +116,19 @@ class UserRepository {
     }
 
 
+    ///////////////////////////////////////////////////
+    async deleteAllCartItems(userId) {
+        const user = await this.userModel.findById(userId);
+        if (!user) return null;
+
+        // Clear the user's cart
+        user.cart = [];
+
+        // Save the updated user document
+        await user.save();
+
+        return user.cart;
+    }
 
 
 

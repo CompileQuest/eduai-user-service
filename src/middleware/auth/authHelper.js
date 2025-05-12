@@ -1,5 +1,8 @@
 import { ForbiddenError, UnauthorizedError } from '../../utils/app-errors.js';
-const mock = true;
+import { expressjwt as jwt } from 'express-jwt';
+import jwksRsa from 'jwks-rsa';
+
+const mock = false;
 const checkRole = (requiredRoles = []) => {
     return (req, res, next) => {
         if (mock) {
@@ -26,6 +29,7 @@ const checkRole = (requiredRoles = []) => {
 
 // Function to extract JWT from request
 const getTokenFromRequest = (req) => {
+
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith("Bearer ")) {
         //   console.log("Authorization Header Token:", authHeader);
@@ -33,10 +37,12 @@ const getTokenFromRequest = (req) => {
     }
 
     if (req.cookies?.sAccessToken) {
-        // console.log("Token from Cookies:", req.cookies.sAccessToken);
+        //console.log("Token from Cookies:", req.cookies.sAccessToken);
         return req.cookies.sAccessToken;
     }
 
+
+    console.log("there is no token found !! ");
     return null;
 };
 
@@ -72,6 +78,7 @@ const checkAuth = (req, res, next) => {
             if (err.code === "permission_denied") {
                 return next(new ForbiddenError("You do not have permission to access this resource"));
             }
+            console.log("this is the error", err);
             return next(new UnauthorizedError("Authentication failed"));
         }
         // If no error, continue to the next middleware or route handler
@@ -82,9 +89,8 @@ const checkAuth = (req, res, next) => {
 
 
 const getUserId = (auth, Role) => {
-    console.log("this is the auth ", auth);
-    console.log("this is the mock ", mock);
-    console.log("this is the role ", Role);
+
+
     if (mock && Role === 'STUDENT') {
         return 'c1243e05-49f2-4931-9d73-f77a049a5935';
     }
@@ -111,7 +117,8 @@ const getCurrentRole = (auth) => {
     }
 
     //return auth.sub; // `sub` contains the user ID
-    return auth.role;
+    const userRole = auth["st-role"]?.v || [];
+    return userRole[0];
 }
 
 export { checkRole, getUserId, getCurrentRole, checkAuth, getTokenFromRequest };

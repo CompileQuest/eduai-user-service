@@ -28,7 +28,7 @@ export const SuperTokensConfig = {
         appName: "SuperTokens Demo App",
         apiDomain: API_DOMAIN,
         websiteDomain: WEBSITE_DOMAIN,
-        apiBasePath: '/api/v1/user/auth',
+        apiBasePath: '/api/v1/auth',
     },
     recipeList: [
         EmailPassword.init({
