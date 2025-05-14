@@ -8,7 +8,8 @@ import ResponseHelper from "../utils/responseHelper.js";
 import httpClient from "../services/external/httpClient.js";
 import services from "../services/external/services.js"; // Import the services configuration
 import { validate as uuidValidate } from "uuid";
-
+import HttpClient from "../services/external/httpClient.js";
+import EVENTS from "./external/events.js";
 
 // All Business logic will be here
 class UserService {
@@ -85,6 +86,37 @@ class UserService {
             throw new InternalServerError('Failed to fetch related courses', error.message);
         }
     }
+
+
+
+
+
+
+    async getUserLearningCourses(userId) {
+        try {
+
+            // fetch Owned Courses
+            const ownedCourses = await this.repository.getOwnedCourses(userId);
+            console.log("this is the owned courses ", ownedCourses);
+            const payload = {
+                ownedCourses: ownedCourses,
+                userId: userId
+            }
+            const result = this.externalService.callService(services.courseService, EVENTS.USER_OWNS_COURSE, payload)
+            console.log("this is the result ", result);
+
+            // here if there is no course i will just return an empty array which is better :) 
+            return result || false;
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new InternalServerError('Failed to fetch related courses', error.message);
+        }
+    }
+    // what is the difference bewteen having 
+
+
 
 
 

@@ -65,7 +65,6 @@ class UserRepository {
             if (!user) {
                 return []; // Return empty array if no user/courses found
             }
-            console.log("this is the user", user);
 
             return user.purchased_courses.map(item => item.toString());
         } catch (error) {

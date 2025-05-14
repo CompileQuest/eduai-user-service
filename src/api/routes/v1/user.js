@@ -60,7 +60,6 @@ router.get("/owns-course/:courseId", checkAuth, checkRole([ROLES.STUDENT]), asyn
 router.delete("/deleteUser/:userId", async (req, res, next) => {
     try {
         const { userId } = req.params; // Extract userId from the request parameters
-
         console.log("UserId", userId); // Log UserId for debugging
         const deletedUser = await service.deleteUserById(userId); // Get the owned courses from the service
         return res.status(200).json({
@@ -97,6 +96,29 @@ router.get("/user-cart/", checkAuth, checkRole([ROLES.STUDENT]), async (req, res
 
 
 
+
+router.get("/user-learning-courses/", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
+
+    try {
+        const userId = getUserId(req.auth);
+        console.log("UserId", userId); // Log UserId for debugging
+        if (!userId) {
+            throw new BadRequestError("User ID is required");
+        }
+
+
+        const userCart = await service.getUserLearningCourses(userId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: true,
+            message: "User Courses Fetched  successfully",
+            data: userCart
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
 router.post("/add-to-cart/:courseId", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
 
@@ -125,10 +147,11 @@ router.post("/add-to-cart/:courseId", checkAuth, checkRole([ROLES.STUDENT]), asy
 });
 
 
-router.delete("/delete-cart-items/", async (req, res, next) => {
+router.delete("/delete-cart-items/", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
-        const userId = getUserId(req.auth, ROLES.STUDENT);
+        const userId = getUserId(req.auth);
         const { courseIds } = req.body;
+        console.log("this is the cousre ", req.body);
 
         console.log("UserId", userId); // Log UserId for debugging
         console.log("CourseIds", courseIds); // Log CourseId for debugging
