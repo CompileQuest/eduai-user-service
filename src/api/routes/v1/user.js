@@ -174,6 +174,9 @@ router.delete("/delete-cart-items/", checkAuth, checkRole([ROLES.STUDENT]), asyn
 
 
 
+
+
+
 router.delete("/delete-all-cart-items", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
     try {
         const userId = getUserId(req.auth);
@@ -187,6 +190,83 @@ router.delete("/delete-all-cart-items", checkAuth, checkRole([ROLES.STUDENT]), a
         next(err); // Pass errors to the error-handling middleware
     }
 })
+
+
+router.post("/add-to-bookmarks/:courseId", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
+    try {
+        const userId = getUserId(req.auth);
+        const userRole = getCurrentRole(req.auth);
+        const { courseId } = req.params; // Extract courseId from the request body
+
+        console.log("UserId", userId); // Log UserId for debugging
+        console.log("this is the user Role ", userRole)
+        console.log("CourseId", courseId); // Log CourseId for debugging
+
+        if (!userId || !courseId) {
+            throw new BadRequestError("User ID and Course ID are required");
+        }
+
+
+        const result = await service.addToBookmarks(userId, courseId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: result.success,
+            message: result.message,
+            data: result.data
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
+router.delete("/delete-bookmarks-items/", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
+    try {
+        const userId = getUserId(req.auth);
+        const { courseIds } = req.body;
+        console.log("this is the cousre ", req.body);
+
+        console.log("UserId", userId); // Log UserId for debugging
+        console.log("CourseIds", courseIds); // Log CourseId for debugging
+
+        if (!userId || !courseIds) {
+            throw new BadRequestError("User ID and Course ID are required");
+        }
+
+
+        const result = await service.deleteFromBookmarks(userId, courseIds); // Get the owned courses from the service
+        return res.status(200).json({
+            success: result.success,
+            message: result.message,
+            data: result.data
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
+
+router.get("/bookmarks/", checkAuth, checkRole([ROLES.STUDENT]), async (req, res, next) => {
+    try {
+        const userId = getUserId(req.auth);
+
+        console.log("UserId", userId); // Log UserId for debugging
+
+        if (!userId) {
+            throw new BadRequestError("User ID and Course ID are required");
+        }
+
+
+        const result = await service.getBookmarks(userId); // Get the owned courses from the service
+        return res.status(200).json({
+            success: result.success,
+            message: result.message,
+            data: result.data
+        });
+    } catch (err) {
+        next(err); // Pass errors to the error-handling middleware
+    }
+});
+
 
 
 
