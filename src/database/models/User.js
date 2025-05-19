@@ -60,6 +60,23 @@ const billingInfoSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+
+const bookmarkedCourseSchema = new mongoose.Schema({
+  course_id: { type: mongoose.Schema.Types.UUID, required: true },
+  course_name: { type: String, required: true },
+  thumbnail: { type: String, required: true, match: /^https?:\/\/.+$/ },
+  rating: { type: Number, required: true, min: 0, max: 5 }
+}, { _id: false });
+
+
+const roadmapSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  data: { type: Object, required: true }, // Your tree-like JSON goes here
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
+}, { _id: true }); // allows for easy updates of specific roadmaps
+
 // todo convert notifcation settings to embedded done
 // todo add the wishlist done
 // todo add address field 1 and 2  done
@@ -104,6 +121,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     maxlength: 500
   },
+  bookmarks: [bookmarkedCourseSchema],
   timezone: {
     type: String
   },
@@ -173,8 +191,9 @@ const userSchema = new mongoose.Schema({
     type: socialProfilesSchema,
     default: {}
   },
-});
+  roadmaps: [roadmapSchema],
 
+});
 
 
 

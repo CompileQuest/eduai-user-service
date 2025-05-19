@@ -73,12 +73,30 @@ class UserRepository {
     }
 
 
+    async addBookmarks(userId, newBookmarks) {
+        return await UserModel.findByIdAndUpdate(
+            userId,
+            { $addToSet: { bookmarks: { $each: newBookmarks } } }, // avoids duplicates
+            { new: true }
+        ).select('bookmarks');
+    }
+
+
 
     async getUserCart(userId) {
         const user = await UserModel.findById(userId)
             .select('cart').lean();
 
         return user ? user.cart : []; // Return the cart or an empty array if not found
+    }
+
+
+
+    async getUserBookmark(userId) {
+        const user = await UserModel.findById(userId)
+            .select('bookmarks').lean();
+
+        return user ? user.bookmarks : []; // Return the cart or an empty array if not found
     }
 
     async GetAllUsers() {

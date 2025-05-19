@@ -203,6 +203,93 @@ class UserService {
 
 
 
+
+
+
+    async getUserBookmark(userId) {
+        try {
+            // Check if userId is provided
+            if (!userId) {
+                throw new BadRequestError("User ID is required");
+            }
+
+            // Fetch the user's cart from the repository
+            const bookmarks = await this.repository.getUserBookmark(userId);
+
+
+            // Return success response with the cart data
+            return {
+                success: true,
+                message: "Bookmarks fetched successfully",
+                data: bookmarks
+            }
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new APIError("Failed to fetch user cart", error.message);
+        }
+    }
+
+
+    async addToBookmark(userId, courseId) {
+        try {
+            const courseIdPayload = FormateData({
+                courseId: courseId
+            });
+
+            const courseDetailsResponse = await this.externalService.callService(
+                services.courseService,
+                'course.bookmark.info',
+                courseIdPayload
+            );
+
+            const courseDetails = courseDetailsResponse;
+
+            if (!Array.isArray(courseDetails) || courseDetails.length === 0) {
+                throw new NotFoundError("No course details found", "Make sure the course IDs are valid.");
+            }
+
+            const user = await this.repository.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found", `No user with ID ${userId}`);
+            }
+
+            const existingBookmarkIds = user.bookmarks.map(b => b.course_id);
+
+            const newBookmarks = courseDetails
+                .filter(course => !existingBookmarkIds.includes(course.id))
+                .map(course => ({
+                    course_id: course.id,
+                    course_name: course.title,
+                    thumbnail: course.thumbnailUrl,
+                    rating: course.rating || 0
+                }));
+
+            if (newBookmarks.length === 0) {
+                return {
+                    success: true,
+                    message: "No new courses to bookmark. Already bookmarked.",
+                    data: user.bookmarks
+                };
+            }
+
+            const updatedBookmarks = await this.repository.addBookmarks(userId, newBookmarks);
+
+            return {
+                success: true,
+                message: "Courses bookmarked successfully",
+                data: updatedBookmarks
+            };
+
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new APIError("Failed to bookmark courses", error.message);
+        }
+    }
+
+
+
     // Method to remove courses from the user's cart
     async deleteAllCartItems(userId) {
         try {
