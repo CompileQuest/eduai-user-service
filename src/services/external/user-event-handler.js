@@ -5,10 +5,12 @@ class userHttpHandler {
     constructor() {
         this.userService = new UserService();
         this.handleDoesUserOwnsCourse = this.handleDoesUserOwnsCourse.bind(this);
+        this.handleInstructorInfoCourseTable = this.handleInstructorInfoCourseTable.bind(this);
         this.handleUnknownMessage = this.handleUnknownMessage.bind(this);
         // Use routing keys instead of hardcoded strings
         this.handlers = {
             [EVENTS.USER_OWNS_COURSE]: this.handleDoesUserOwnsCourse,
+            [EVENTS.INSTRUCTOR_INFO_COURSE_TABLE]: this.handleInstructorInfoCourseTable,
         };
     }
 
@@ -42,6 +44,28 @@ class userHttpHandler {
         }
     }
 
+    async handleInstructorInfoCourseTable(payload, type) {
+        console.log("From Event Handler  this is the event ", type);
+        console.log("From Event Handler this is the payload ", payload);
+
+        const { instructorIds } = payload.data;
+        console.log("this is the instroctor  ids ", instructorIds);
+
+        try {
+            const instructorInfo = await this.userService.getInstructorInfoCourseTable(instructorIds);
+            return {
+                success: true,
+                message: `Successfully handled ${type}`,
+                data: instructorInfo,
+            };
+        } catch (error) {
+            console.error(`❌ Failed to handle ${type}:`, error);
+            return {
+                success: false,
+                message: `Failed to handle ${type}: ${error.message}`,
+            };
+        }
+    }
 
 
 

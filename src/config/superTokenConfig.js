@@ -9,6 +9,9 @@ import {
     API_DOMAIN
 } from "./index.js";
 
+
+
+
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 import ThirdParty from "supertokens-node/recipe/thirdparty";
 import Session from "supertokens-node/recipe/session";
@@ -18,6 +21,10 @@ import EmailVerification from "supertokens-node/recipe/emailverification";
 import UserService from '../services/user-service.js';
 
 const userService = new UserService();
+
+console.log("this is the api key ", SUPERTOKEN_API_KEY);
+console.log("this is the connecton url ", SUPERTOKEN_CONNECTION_URL)
+
 
 export const SuperTokensConfig = {
     supertokens: {

@@ -64,6 +64,24 @@ class UserService {
 
 
 
+
+    async getInstructorInfoCourseTable(instructorIds) {
+        try {
+            // fetch Owned Courses
+            const instructorInfo = await this.repository.getInstructorInfoCourseTable(instructorIds);
+            console.log("this is instructor info", instructorInfo);
+
+            // here if there is no course i will just return an empty array which is better :) 
+            return instructorInfo || [];
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            console.log(error);
+            throw new InternalServerError('Failed to fetch instructors info', error.message);
+        }
+    }
+
     async doesUserOwnsThisCousre(userId, courseId) {
         try {
 

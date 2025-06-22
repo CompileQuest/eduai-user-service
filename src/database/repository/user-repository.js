@@ -48,6 +48,24 @@ class UserRepository {
     }
 
 
+    async getInstructorInfoCourseTable(instroctorIds) {
+        //const instructors = await UserModel.find({ _id: { $in: instroctorIds } })
+        const instructors = await UserModel.find({ _id: { $in: instroctorIds } });
+        if (!instructors) {
+            return null; // User not found  
+        }
+        const instructorInfo = instructors.map((instructor) => {
+            return {
+                id: instructor._id,
+                name: instructor.username,
+                email: instructor.email,
+            }
+        });
+
+        return instructorInfo; // User found
+    }
+
+
     async deleteUserById(userId) {
         const user = await UserModel.findOneAndDelete({ _id: userId }).lean();
         console.log("i am here ", user);
